@@ -1,0 +1,53 @@
+From 50b56d04b6ee6cc2b9b3c6d7ad6dafa9a6b511a5 Mon Sep 17 00:00:00 2001
+From: Kyle Yang <kyleyang@wtmec.com>
+Date: Tue, 21 Mar 2023 00:04:44 +0800
+Subject: [PATCH 3/4] Ignore enter factory mode and boot to kernel
+
+---
+ .../bootable/bootloader/lk/platform/mt8195/boot_mode.c     | 7 ++++---
+ .../bootable/bootloader/lk/platform/mt8195/factory.c       | 2 +-
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/vendor/mediatek/proprietary/bootable/bootloader/lk/platform/mt8195/boot_mode.c b/vendor/mediatek/proprietary/bootable/bootloader/lk/platform/mt8195/boot_mode.c
+index e3c81e0f88..d57571c7f4 100644
+--- a/vendor/mediatek/proprietary/bootable/bootloader/lk/platform/mt8195/boot_mode.c
++++ b/vendor/mediatek/proprietary/bootable/bootloader/lk/platform/mt8195/boot_mode.c
+@@ -185,7 +185,8 @@ void boot_mode_select(void)
+ 		if (!factory_forbidden) {
+ 			if (mtk_detect_key(MT65XX_FACTORY_KEY)) {
+ 				dprintf(CRITICAL, "%s Detect key\n",MODULE_NAME);
+-				dprintf(CRITICAL, "%s Enable factory mode\n",MODULE_NAME);
++				dprintf(CRITICAL, "%s Enable factory mode 1\n",MODULE_NAME);
++				return;
+ 				g_boot_mode = FACTORY_BOOT;
+ 				//video_printf("%s : detect factory mode !\n",MODULE_NAME);
+ 				return;
+@@ -275,10 +276,10 @@ void boot_mode_select(void)
+ 		if (!factory_forbidden) {
+ 			if (mtk_detect_key(MT65XX_FACTORY_KEY)) {
+ 				dprintf(INFO, "%s Detect key\n",MODULE_NAME);
+-				dprintf(INFO, "%s Enable factory mode\n",MODULE_NAME);
++				dprintf(INFO, "%s Enable factory mode 2\n",MODULE_NAME);
+ 				g_boot_mode = FACTORY_BOOT;
+ 				//video_printf("%s : detect factory mode !\n",MODULE_NAME);
+-				return TRUE;
++				return FALSE;
+ 			}
+ 		}
+ #ifdef MT65XX_RECOVERY_KEY
+diff --git a/vendor/mediatek/proprietary/bootable/bootloader/lk/platform/mt8195/factory.c b/vendor/mediatek/proprietary/bootable/bootloader/lk/platform/mt8195/factory.c
+index 47fb79a1dc..4c313f6b2b 100644
+--- a/vendor/mediatek/proprietary/bootable/bootloader/lk/platform/mt8195/factory.c
++++ b/vendor/mediatek/proprietary/bootable/bootloader/lk/platform/mt8195/factory.c
+@@ -37,7 +37,7 @@ BOOL factory_check_key_trigger(void)
+ 			dprintf(CRITICAL, "%s Enable factory mode\n",MODULE_NAME);
+ 			g_boot_mode = FACTORY_BOOT;
+ 			//video_printf("%s : detect factory mode !\n",MODULE_NAME);
+-			return TRUE;
++			return FALSE;
+ 		}
+ 	}
+ #endif
+-- 
+2.36.1
+

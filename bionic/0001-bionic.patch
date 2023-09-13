@@ -1,0 +1,15 @@
+diff --git a/libc/kernel/uapi/linux/spi/spi.h b/libc/kernel/uapi/linux/spi/spi.h
+index 39267a2..6a4a9c2 100644
+--- a/libc/kernel/uapi/linux/spi/spi.h
++++ b/libc/kernel/uapi/linux/spi/spi.h
+@@ -37,8 +37,8 @@
+ #define SPI_RX_DUAL _BITUL(10)
+ #define SPI_RX_QUAD _BITUL(11)
+ #define SPI_CS_WORD _BITUL(12)
+-#define SPI_TX_OCTAL _BITUL(13)
+-#define SPI_RX_OCTAL _BITUL(14)
++//#define SPI_TX_OCTAL _BITUL(13)
++//#define SPI_RX_OCTAL _BITUL(14)
+ #define SPI_3WIRE_HIZ _BITUL(15)
+ #define SPI_MODE_USER_MASK (_BITUL(16) - 1)
+ #endif

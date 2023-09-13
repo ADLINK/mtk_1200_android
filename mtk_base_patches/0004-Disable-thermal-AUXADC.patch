@@ -1,0 +1,40 @@
+From dc4544891e3e6b95ce75a334015d447f65e2527a Mon Sep 17 00:00:00 2001
+From: Kyle Yang <kyleyang@wtmec.com>
+Date: Thu, 23 Mar 2023 14:56:39 +0800
+Subject: [PATCH 4/4] Disable thermal AUXADC
+
+---
+ kernel-5.15/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/kernel-5.15/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts b/kernel-5.15/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts
+index a344dc24ee..ebcb2fefc5 100644
+--- a/kernel-5.15/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts
++++ b/kernel-5.15/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts
+@@ -275,6 +275,7 @@ tboard_thermistor1: tboard_thermistor1 {
+ 						115000 15
+ 						120000 13
+ 						125000 12>;
++		status = "disabled";
+ 	};
+ 
+ 	tboard_thermistor2: tboard_thermistor2 {
+@@ -309,6 +310,7 @@ tboard_thermistor2: tboard_thermistor2 {
+ 						115000 15
+ 						120000 13
+ 						125000 12>;
++		status = "disabled";
+ 	};
+ 
+ 	tboard_thermistor3: tboard_thermistor3 {
+@@ -343,6 +345,7 @@ tboard_thermistor3: tboard_thermistor3 {
+ 						115000 15
+ 						120000 13
+ 						125000 12>;
++		status = "disabled";
+ 	};
+ 
+ 	usb_p1_vbus: regulator@0 {
+-- 
+2.36.1
+

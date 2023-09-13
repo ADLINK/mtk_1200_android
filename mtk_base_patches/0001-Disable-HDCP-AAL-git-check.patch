@@ -1,0 +1,51 @@
+From 467014dadcad0e82436b2176774606da20f05eba Mon Sep 17 00:00:00 2001
+From: Kyle Yang <kyleyang@wtmec.com>
+Date: Thu, 23 Mar 2023 14:25:09 +0800
+Subject: [PATCH 1/4] Disable HDCP, AAL, git check
+
+---
+ device/mediateksample/aiot8395p1_64_bsp/ProjectConfig.mk       | 2 +-
+ .../arch/arm64/configs/aiot8395p1_64_bsp_debug_defconfig       | 2 +-
+ kernel-5.15/arch/arm64/configs/aiot8395p1_64_bsp_defconfig     | 2 +-
+ 3 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/device/mediateksample/aiot8395p1_64_bsp/ProjectConfig.mk b/device/mediateksample/aiot8395p1_64_bsp/ProjectConfig.mk
+index 3e0177e826..6bd6ffa0ad 100644
+--- a/device/mediateksample/aiot8395p1_64_bsp/ProjectConfig.mk
++++ b/device/mediateksample/aiot8395p1_64_bsp/ProjectConfig.mk
+@@ -56,7 +56,7 @@ LCM_HEIGHT = 1920
+ LCM_WIDTH = 1200
+ LINUX_KERNEL_VERSION = kernel-5.15
+ MICROTRUST_TEE_SUPPORT = no
+-MTK_AAL_SUPPORT = yes
++MTK_AAL_SUPPORT = no
+ MTK_AB_OTA_UPDATER = yes
+ MTK_ADSP_VA_SUPPORT = no
+ MTK_AEE_SUPPORT = yes
+diff --git a/kernel-5.15/arch/arm64/configs/aiot8395p1_64_bsp_debug_defconfig b/kernel-5.15/arch/arm64/configs/aiot8395p1_64_bsp_debug_defconfig
+index 0fffba7b9e..f76f864aee 100644
+--- a/kernel-5.15/arch/arm64/configs/aiot8395p1_64_bsp_debug_defconfig
++++ b/kernel-5.15/arch/arm64/configs/aiot8395p1_64_bsp_debug_defconfig
+@@ -184,7 +184,7 @@ CONFIG_DRM_MEDIATEK_PANEL=m
+ CONFIG_DRM_MEDIATEK=m
+ CONFIG_DRM_MEDIATEK_V2=y
+ CONFIG_DRM_MEDIATEK_HDMI=m
+-CONFIG_DRM_MEDIATEK_HDMI_HDCP=y
++# CONFIG_DRM_MEDIATEK_HDMI_HDCP is not set
+ CONFIG_MTK_GATE_IC=y
+ CONFIG_RT4831A_I2C=m
+ CONFIG_MTK_GPU_SUPPORT=m
+diff --git a/kernel-5.15/arch/arm64/configs/aiot8395p1_64_bsp_defconfig b/kernel-5.15/arch/arm64/configs/aiot8395p1_64_bsp_defconfig
+index 3f149038cd..43c4446ad9 100644
+--- a/kernel-5.15/arch/arm64/configs/aiot8395p1_64_bsp_defconfig
++++ b/kernel-5.15/arch/arm64/configs/aiot8395p1_64_bsp_defconfig
+@@ -184,7 +184,7 @@ CONFIG_DRM_MEDIATEK_PANEL=m
+ CONFIG_DRM_MEDIATEK=m
+ CONFIG_DRM_MEDIATEK_V2=y
+ CONFIG_DRM_MEDIATEK_HDMI=m
+-CONFIG_DRM_MEDIATEK_HDMI_HDCP=y
++# CONFIG_DRM_MEDIATEK_HDMI_HDCP is not set
+ CONFIG_MTK_GATE_IC=y
+ CONFIG_RT4831A_I2C=m
+ CONFIG_MTK_GPU_SUPPORT=m
+

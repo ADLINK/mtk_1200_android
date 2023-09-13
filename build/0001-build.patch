@@ -1,0 +1,24 @@
+diff --git a/make/target/product/base_system.mk b/make/target/product/base_system.mk
+index c919ac4..5413fa3 100644
+--- a/make/target/product/base_system.mk
++++ b/make/target/product/base_system.mk
+@@ -287,6 +287,9 @@ PRODUCT_PACKAGES += \
+     wificond \
+     wifi.rc \
+     wm \
++    spidevtest \
++    cansend \
++    candump \
+ 
+ # VINTF data for system image
+ PRODUCT_PACKAGES += \
+@@ -396,6 +399,9 @@ PRODUCT_PACKAGES_DEBUG := \
+     unwind_info \
+     unwind_reg_info \
+     unwind_symbols \
++    spidevtest \
++    cansend \
++    candump \
+ 
+ # The set of packages whose code can be loaded by the system server.
+ PRODUCT_SYSTEM_SERVER_APPS += \

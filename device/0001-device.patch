@@ -1,0 +1,226 @@
+commit 219ff7e9dc02d0b12c3e2075d29688ec6f0cfbcc
+Author: Shiva1492 <shivashankar.thiruchitrambalam@adlinktech.com>
+Date:   Tue Sep 12 00:21:58 2023 +0530
+
+    bsp_devices
+
+diff --git a/mediatek/common/connectivity/product_package/bluetooth_product_package.mk b/mediatek/common/connectivity/product_package/bluetooth_product_package.mk
+index cf83273c..44d245a8 100644
+--- a/mediatek/common/connectivity/product_package/bluetooth_product_package.mk
++++ b/mediatek/common/connectivity/product_package/bluetooth_product_package.mk
+@@ -20,8 +20,9 @@ else
+   PRODUCT_PACKAGES += autobt
+   PRODUCT_PACKAGES += bt_drv.ko
+ endif
++else
++  PRODUCT_PACKAGES += libbt-vendor
+ endif
+-
+ BT_CFG_PATH := vendor/mediatek/proprietary/hardware/connectivity/firmware/rom_patch
+ 
+ BT_CHIP := soc3_0
+diff --git a/mediatek/mt8195/BoardConfig.mk b/mediatek/mt8195/BoardConfig.mk
+index 6ffa4788..eb0e8da5 100644
+--- a/mediatek/mt8195/BoardConfig.mk
++++ b/mediatek/mt8195/BoardConfig.mk
+@@ -136,9 +136,10 @@ TARGET_USES_64_BIT_BINDER := true
+ ifneq ($(MTK_K64_SUPPORT), yes)
+ BOARD_KERNEL_CMDLINE = bootopt=64S3,32N2,32N2
+ else
+-BOARD_KERNEL_CMDLINE = bootopt=64S3,32N2,64N2
++BOARD_KERNEL_CMDLINE = bootopt=64S3,32N2,64N2 androidboot.bt_uart=/dev/ttyUSB0 androidboot.btmacaddr=2f:0b:a1:aa:bf:04
+ endif
+ 
++#BOARD_KERNEL_CMDLINE += androidboot.bt_uart=/dev/ttyUSB0 androidboot.btmacaddr=2f:0b:a1:aa:bf:04
+ BOARD_KERNEL_PAGESIZE := 4096
+ BOARD_BOOT_HEADER_VERSION = 4
+ BOARD_MKBOOTIMG_ARGS := --kernel_offset $(BOARD_KERNEL_OFFSET) --ramdisk_offset $(BOARD_RAMDISK_OFFSET) --tags_offset $(BOARD_TAGS_OFFSET)
+diff --git a/mediatek/mt8195/init.mt8195.rc b/mediatek/mt8195/init.mt8195.rc
+index 93c46865..1d96799c 100644
+--- a/mediatek/mt8195/init.mt8195.rc
++++ b/mediatek/mt8195/init.mt8195.rc
+@@ -755,6 +755,12 @@ on zygote-start
+ 
+ on early-boot
+     write /proc/bootprof "INIT:early-boot"
++    # Configure bluetooth
++    setprop hw.bluetooth 1
++    chmod 0666 /dev/ttyUSB0
++    chmod 0666 /dev/ttyUSB1
++    chmod 0660 /sys/class/rfkill/rfkill0/state
++    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
+ 
+ on boot
+     write /proc/bootprof "INIT:boot"
+diff --git a/mediatek/mt8195/init.mt8195.usb.rc b/mediatek/mt8195/init.mt8195.usb.rc
+index 3ee8c6d4..cbf4c19b 100644
+--- a/mediatek/mt8195/init.mt8195.usb.rc
++++ b/mediatek/mt8195/init.mt8195.usb.rc
+@@ -46,7 +46,7 @@ on post-fs
+ on boot
+     setprop sys.usb.configfs 1
+     setprop sys.usb.ffs.aio_compat 1
+-    setprop vendor.usb.controller "11201000.usb"
++    setprop vendor.usb.controller "112a1000.usb1"
+     setprop vendor.usb.acm_cnt 0
+     setprop vendor.usb.acm_port0 ""
+     setprop vendor.usb.acm_port1 ""
+diff --git a/mediatek/mt8195/ueventd.mt8195.rc b/mediatek/mt8195/ueventd.mt8195.rc
+index eeec5cd6..2918f704 100644
+--- a/mediatek/mt8195/ueventd.mt8195.rc
++++ b/mediatek/mt8195/ueventd.mt8195.rc
+@@ -127,8 +127,8 @@
+ 
+ # add the read write right of ttyUSB*
+ /dev/bus/usb/*     	  0660   root       usb
+-/dev/ttyUSB0              0660   radio      radio
+-/dev/ttyUSB1              0660   radio      radio
++/dev/ttyUSB0              0666   bluetooth  bluetooth
++/dev/ttyUSB1              0666   bluetooth  bluetooth
+ /dev/ttyUSB2              0660   radio      radio
+ /dev/ttyUSB3              0660   radio      radio
+ /dev/ttyUSB4              0660   radio      radio
+diff --git a/mediatek/sepolicy/base/vendor/file_contexts b/mediatek/sepolicy/base/vendor/file_contexts
+index 9fa5a4bd..691d55a0 100644
+--- a/mediatek/sepolicy/base/vendor/file_contexts
++++ b/mediatek/sepolicy/base/vendor/file_contexts
+@@ -491,8 +491,8 @@
+ /dev/ttyp.*    u:object_r:ttyp_device:s0
+ /dev/ttySDIO.* u:object_r:ttySDIO_device:s0
+ /dev/ttyS.*    u:object_r:ttyS_device:s0
+-/dev/ttyUSB0   u:object_r:tty_device:s0
+-/dev/ttyUSB1   u:object_r:tty_device:s0
++/dev/ttyUSB0   u:object_r:stpbt_device:s0
++/dev/ttyUSB1   u:object_r:stpbt_device:s0
+ /dev/ttyUSB2   u:object_r:tty_device:s0
+ /dev/ttyUSB3   u:object_r:tty_device:s0
+ /dev/ttyUSB4   u:object_r:tty_device:s0
+diff --git a/mediatek/vendor/common/connectivity/product_package/bluetooth_product_package-hal.mk b/mediatek/vendor/common/connectivity/product_package/bluetooth_product_package-hal.mk
+index 7d6fc0ef..e88fe0ce 100644
+--- a/mediatek/vendor/common/connectivity/product_package/bluetooth_product_package-hal.mk
++++ b/mediatek/vendor/common/connectivity/product_package/bluetooth_product_package-hal.mk
+@@ -12,6 +12,8 @@ ifeq ($(strip $(MTK_BT_SUPPORT)), yes)
+   PRODUCT_PACKAGES += libbluetooth_hw_test
+   PRODUCT_PACKAGES += autobt
+   PRODUCT_PACKAGES += uart_launcher
++else
++  PRODUCT_PACKAGES += libbt-vendor
+ endif
+ 
+ # BT_FW.cfg
+diff --git a/mediatek/vendor/common/connectivity/product_package/bluetooth_product_package.mk b/mediatek/vendor/common/connectivity/product_package/bluetooth_product_package.mk
+index eefc8f70..1cca3b5b 100644
+--- a/mediatek/vendor/common/connectivity/product_package/bluetooth_product_package.mk
++++ b/mediatek/vendor/common/connectivity/product_package/bluetooth_product_package.mk
+@@ -75,6 +75,8 @@ else
+     PRODUCT_PROPERTY_OVERRIDES += ro.vendor.bt.platform=connac1x
+   endif
+ endif
++else
++  PRODUCT_PACKAGES += libbt-vendor
+ endif
+ 
+ 
+diff --git a/mediatek/vendor/common/connectivity/product_package/wlan_product_package.mk b/mediatek/vendor/common/connectivity/product_package/wlan_product_package.mk
+index 81749671..ec6183ae 100644
+--- a/mediatek/vendor/common/connectivity/product_package/wlan_product_package.mk
++++ b/mediatek/vendor/common/connectivity/product_package/wlan_product_package.mk
+@@ -184,6 +184,11 @@ endif
+ 
+ ifneq ($(strip $(MY_SRC_FILE)),)
+     PRODUCT_COPY_FILES += $(wlan_patch_folder)/$(MY_SRC_FILE):$(TARGET_COPY_OUT_VENDOR)/firmware/$(MY_SRC_FILE)
++    PRODUCT_COPY_FILES += $(wlan_patch_folder)/android_wifi_mod_para.conf:$(TARGET_COPY_OUT_VENDOR)/firmware/android_wifi_mod_para.conf
++    PRODUCT_COPY_FILES += $(wlan_patch_folder)/wifi_mod_para.conf:$(TARGET_COPY_OUT_VENDOR)/firmware/wifi_mod_para.conf
++    PRODUCT_COPY_FILES += $(wlan_patch_folder)/pcieuart8997_combo_v4.bin:$(TARGET_COPY_OUT_VENDOR)/firmware/pcieuart8997_combo_v4.bin
++    PRODUCT_COPY_FILES += $(wlan_patch_folder)/pcieuart8997_combo_v4.bin:$(TARGET_COPY_OUT_VENDOR)/firmware/nxp/pcieuart8997_combo_v4.bin
++    PRODUCT_COPY_FILES += $(wlan_patch_folder)/bt_vendor.conf:$(TARGET_COPY_OUT_VENDOR)/etc/bluetooth/bt_vendor.conf
+ else
+     $(error no firmware for project=$(MTK_TARGET_PROJECT) $(VEXT_TARGET_PROJECT), combo_chip=$(MTK_COMBO_CHIP), WLAN_CHIP_ID=$(WLAN_CHIP_ID))
+ endif
+diff --git a/mediateksample/aiot8395p1_64_bsp/BoardConfig.mk b/mediateksample/aiot8395p1_64_bsp/BoardConfig.mk
+index 102bb44f..8f0647fa 100644
+--- a/mediateksample/aiot8395p1_64_bsp/BoardConfig.mk
++++ b/mediateksample/aiot8395p1_64_bsp/BoardConfig.mk
+@@ -26,11 +26,14 @@ MTK_INTERNAL_CDEFS += $(foreach t,$(AUTO_ADD_GLOBAL_DEFINE_BY_NAME_VALUE),$(if $
+ MTK_GLOBAL_CFLAGS += $(MTK_INTERNAL_CDEFS)
+ 
+ ifneq ($(MTK_K64_SUPPORT), yes)
+-BOARD_KERNEL_CMDLINE = bootopt=64S3,32S1,32S1
++BOARD_KERNEL_CMDLINE = bootopt=64S3,32S1,32S1 bluetooth
+ else
+-BOARD_KERNEL_CMDLINE = bootopt=64S3,32N2,64N2
++BOARD_KERNEL_CMDLINE = bootopt=64S3,32N2,64N2 bluetooth
+ endif
+ 
++#BOARD_KERNEL_CMDLINE += androidboot.bt_uart=/dev/ttyUSB0
++#BOARD_KERNEL_CMDLINE += androidboot.btmacaddr=2f:0b:a1:aa:bf:04
++
+ # bypass brm check to fix build fail
+ ifeq ($(strip $(FPGA_EARLY_PORTING)), yes)
+ MTK_RELEASE_GATEKEEPER := no
+@@ -43,6 +46,9 @@ MTK_PTGEN_CHIP := $(shell echo $(TARGET_BOARD_PLATFORM) | tr '[a-z]' '[A-Z]')
+ -include $(MTK_PTGEN_OUT)/partition_size.mk
+ BOARD_MTK_SUPER_SIZE_KB := 5242880
+ 
++BOARD_HAVE_BLUETOOTH := true
++BOARD_HAVE_BLUETOOTH_NXP := true
++
+ MT76XX_CHIPS := MT7668 MT7663 MT7921
+ ifeq ($(MTK_WLAN_SUPPORT), yes)
+ ifneq ($(filter $(MT76XX_CHIPS), $(MTK_COMBO_CHIP)),)
+diff --git a/mediateksample/aiot8395p1_64_bsp/ProjectConfig.mk b/mediateksample/aiot8395p1_64_bsp/ProjectConfig.mk
+index 3fee59e2..48606103 100644
+--- a/mediateksample/aiot8395p1_64_bsp/ProjectConfig.mk
++++ b/mediateksample/aiot8395p1_64_bsp/ProjectConfig.mk
+@@ -391,7 +391,6 @@ MTK_WFD_SINK_SUPPORT = no
+ MTK_WFD_SINK_UIBC_SUPPORT = no
+ MTK_WFD_SUPPORT = yes
+ MTK_WIFI_DUAL_BAND_SUPPORT = no
+-MTK_WLAN_CHIP = MT7921
+ MTK_WLAN_SUPPORT = yes
+ MTK_WMA_PLAYBACK_SUPPORT = yes
+ MTK_WMV_PLAYBACK_SUPPORT = yes
+diff --git a/mediateksample/aiot8395p1_64_bsp/ko_order_table.csv b/mediateksample/aiot8395p1_64_bsp/ko_order_table.csv
+index 34e309c7..e4ca9182 100644
+--- a/mediateksample/aiot8395p1_64_bsp/ko_order_table.csv
++++ b/mediateksample/aiot8395p1_64_bsp/ko_order_table.csv
+@@ -58,6 +58,7 @@ blocktag.ko,/drivers/misc/mediatek/blocktag/blocktag.ko,ramdisk,Y,Y,user/userdeb
+ mtk-pmic-keys.ko,/drivers/input/keyboard/mtk-pmic-keys.ko,ramdisk,Y,Y,user/userdebug/eng
+ mtk-kpd.ko,/drivers/input/keyboard/mtk-kpd.ko,ramdisk,Y,Y,user/userdebug/eng
+ regulator-vibrator.ko,/drivers/leds/regulator-vibrator.ko,ramdisk,Y,Y,user/userdebug/eng
++i2c-dev.ko,/drivers/i2c/i2c-dev.ko,ramdisk,Y,Y,user/userdebug/eng
+ i2c-mt65xx.ko,/drivers/i2c/busses/i2c-mt65xx.ko,ramdisk,Y,Y,user/userdebug/eng
+ rtc-mt6397.ko,/drivers/rtc/rtc-mt6397.ko,ramdisk,Y,Y,user/userdebug/eng
+ spi-mt65xx.ko,/drivers/spi/spi-mt65xx.ko,ramdisk,Y,Y,user/userdebug/eng
+@@ -71,6 +72,7 @@ phy-mtk-tphy.ko,/drivers/phy/mediatek/phy-mtk-tphy.ko,ramdisk,Y,Y,user/userdebug
+ phy-mtk-pcie.ko,/drivers/phy/mediatek/phy-mtk-pcie.ko,ramdisk,Y,Y,user/userdebug/eng
+ xhci-mtk-hcd.ko,/drivers/usb/host/xhci-mtk-hcd.ko,ramdisk,Y,Y,user/userdebug/eng
+ mtu3.ko,/drivers/usb/mtu3/mtu3.ko,ramdisk,Y,Y,user/userdebug/eng
++extcon-usb-gpio.ko,/drivers/extcon/extcon-usb-gpio.ko,ramdisk,Y,Y,user/userdebug/eng
+ usb_f_uac1.ko,/drivers/usb/gadget/function/usb_f_uac1.ko,vendor,Y,Y,user/userdebug/eng
+ usb_f_rndis.ko,/drivers/usb/gadget/function/usb_f_rndis.ko,vendor,Y,Y,user/userdebug/eng
+ pcie-mediatek-gen3.ko,/drivers/pci/controller/pcie-mediatek-gen3.ko,ramdisk,Y,Y,user/userdebug/eng
+@@ -160,8 +162,7 @@ pwm-mediatek.ko,/drivers/pwm/pwm-mediatek.ko,vendor,Y,Y,user/userdebug/eng
+ leds-mtk.ko,/drivers/leds/leds-mtk.ko,vendor,Y,Y,user/userdebug/eng
+ backlight_cooling.ko,/drivers/thermal/mediatek/backlight_cooling.ko,vendor,Y,N,user/userdebug/eng
+ mtk_panel_ext.ko,/drivers/gpu/drm/mediatek/mediatek_v2/mtk_panel_ext.ko,ramdisk,Y,Y,user/userdebug/eng
+-nt50358a_i2c.ko,/drivers/gpu/drm/panel/nt50358a_i2c.ko,vendor,Y,Y,user/userdebug/eng
+-panel-boe-tv101wum-nl6.ko,/drivers/gpu/drm/panel/panel-boe-tv101wum-nl6.ko,ramdisk,Y,Y,user/userdebug/eng
++panel-b101uan01.ko,/drivers/gpu/drm/panel/panel-b101uan01.ko,ramdisk,Y,Y,user/userdebug/eng
+ mtk_dramc.ko,/drivers/memory/mediatek/mtk_dramc.ko,vendor,Y,Y,user/userdebug/eng
+ mtk-mmdvfs.ko,/drivers/soc/mediatek/mtk-mmdvfs.ko,ramdisk,Y,Y,user/userdebug/eng
+ mtk-mmdvfs-debug.ko,/drivers/misc/mediatek/mmdvfs/mtk-mmdvfs-debug.ko,ramdisk,Y,Y,user/userdebug/eng
+@@ -252,3 +253,13 @@ met_ipi_api.ko,/../vendor/mediatek/kernel_modules/met_drv_v3/met_api/met_ipi_api
+ met_mcupm_api.ko,/../vendor/mediatek/kernel_modules/met_drv_v3/met_api/met_mcupm_api/met_mcupm_api.ko,vendor,N,N,user/userdebug/eng
+ met_scmi_api.ko,/../vendor/mediatek/kernel_modules/met_drv_v3/met_api/met_scmi_api/met_scmi_api.ko,vendor,N,N,user/userdebug/eng
+ met_vcore_api.ko,/../vendor/mediatek/kernel_modules/met_drv_v3/met_api/met_vcore_api/met_vcore_api.ko,vendor,N,N,user/userdebug/eng
++usb-conn-gpio.ko,/drivers/usb/common/usb-conn-gpio.ko,ramdisk,Y,Y,user/userdebug/eng
++lan78xx.ko,/drivers/net/usb/lan78xx.ko,ramdisk,Y,N,user/userdebug/eng
++can.ko,/net/can/can.ko,ramdisk,Y,N,user/userdebug/eng
++can-raw.ko,/net/can/can-raw.ko,ramdisk,Y,N,user/userdebug/eng
++can-isotp.ko,/net/can/can-isotp.ko,ramdisk,Y,N,user/userdebug/eng
++can-dev.ko,/drivers/net/can/dev/can-dev.ko,ramdisk,Y,N,user/userdebug/eng
++mcp251xfd.ko,/drivers/net/can/spi/mcp251xfd/mcp251xfd.ko,ramdisk,Y,N,user/userdebug/eng
++moal.ko,/drivers/net/wireless/marvell/mrvl8997/wlan_src/moal.ko,vendor,Y,N,user/userdebug/eng
++mlan.ko,/drivers/net/wireless/marvell/mrvl8997/wlan_src/mlan.ko,vendor,Y,N,user/userdebug/eng
++imx214.ko,/drivers/media/i2c/imx214.ko,vendor,Y,N,user/userdebug/eng

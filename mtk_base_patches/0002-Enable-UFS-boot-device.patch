@@ -1,0 +1,99 @@
+From a9707a7a8e157c9dbb0aa113adfa9a49d99d7ba6 Mon Sep 17 00:00:00 2001
+From: Kyle Yang <kyleyang@wtmec.com>
+Date: Fri, 10 Mar 2023 14:23:12 +0800
+Subject: [PATCH 2/4] Enable UFS boot device
+
+---
+ device/mediatek/mt8195/device.mk                            | 2 +-
+ device/mediatek/mt8195/ueventd.mt8195.rc                    | 1 +
+ device/mediateksample/aiot8395p1_64_bsp/ProjectConfig.mk    | 2 +-
+ device/mediateksample/aiot8395p1_64_bsp/ko_order_table.csv  | 3 +++
+ .../arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts      | 6 ++++++
+ .../bootable/bootloader/lk/project/aiot8395p1_64_bsp.mk     | 2 +-
+ 6 files changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/device/mediatek/mt8195/device.mk b/device/mediatek/mt8195/device.mk
+index f31d748af9..17e04c06a3 100644
+--- a/device/mediatek/mt8195/device.mk
++++ b/device/mediatek/mt8195/device.mk
+@@ -1077,7 +1077,7 @@ endif
+ 
+ ifeq ($(strip $(MTK_FACTORY_RESET_PROTECTION_SUPPORT)),yes)
+ ifneq ($(filter yes,$(MTK_EMMC_SUPPORT) $(MTK_UFS_SUPPORT)),)
+-  PRODUCT_PROPERTY_OVERRIDES += ro.frp.pst=/dev/block/platform/bootdevice/by-name/frp
++  PRODUCT_PROPERTY_OVERRIDES += ro.frp.pst=/dev/block/by-name/frp
+ endif
+ endif
+ 
+diff --git a/device/mediatek/mt8195/ueventd.mt8195.rc b/device/mediatek/mt8195/ueventd.mt8195.rc
+index aaa84ff580..eeec5cd63e 100644
+--- a/device/mediatek/mt8195/ueventd.mt8195.rc
++++ b/device/mediatek/mt8195/ueventd.mt8195.rc
+@@ -28,6 +28,7 @@
+ /dev/block/platform/bootdevice/by-name/md1img_b  0640    root    system
+ /dev/block/platform/bootdevice/by-name/md1dsp    0660    root    system
+ /dev/block/platform/bootdevice/by-name/boot_para 0640    root    system
++/dev/block/by-name/frp                           0660    root    system
+ 
+ /dev/block/platform/11230000.mmc/by-name/misc2     0660    root    system
+ /dev/block/platform/11230000.mmc/by-name/boot      0640    root    system
+diff --git a/device/mediateksample/aiot8395p1_64_bsp/ProjectConfig.mk b/device/mediateksample/aiot8395p1_64_bsp/ProjectConfig.mk
+index 6bd6ffa0ad..3fee59e2e7 100644
+--- a/device/mediateksample/aiot8395p1_64_bsp/ProjectConfig.mk
++++ b/device/mediateksample/aiot8395p1_64_bsp/ProjectConfig.mk
+@@ -359,7 +359,7 @@ MTK_TUNNEL_PLAYBACK_SUPPORT = no
+ MTK_UART_USB_SWITCH = no
+ MTK_UCE_SUPPORT = no
+ MTK_UFS_OTP = no
+-MTK_UFS_SUPPORT = no
++MTK_UFS_SUPPORT = yes
+ MTK_ULTRASND_PROXIMITY = no
+ MTK_ULTRA_DIMMING_SUPPORT = no
+ MTK_ULTRA_RESOLUTION_SUPPORT = yes
+diff --git a/device/mediateksample/aiot8395p1_64_bsp/ko_order_table.csv b/device/mediateksample/aiot8395p1_64_bsp/ko_order_table.csv
+index 12b4f2d349..34e309c7e7 100644
+--- a/device/mediateksample/aiot8395p1_64_bsp/ko_order_table.csv
++++ b/device/mediateksample/aiot8395p1_64_bsp/ko_order_table.csv
+@@ -52,6 +52,9 @@ charger_class.ko,/drivers/power/supply/charger_class.ko,ramdisk,Y,Y,user/userdeb
+ mt6315-regulator.ko,/drivers/regulator/mt6315-regulator.ko,ramdisk,Y,Y,user/userdebug/eng
+ regmap-spmi.ko,/drivers/base/regmap/regmap-spmi.ko,ramdisk,Y,Y,user/userdebug/eng
+ phy-mtk-ufs.ko,/drivers/phy/mediatek/phy-mtk-ufs.ko,ramdisk,Y,Y,user/userdebug/eng
++ufs-mediatek-mod.ko,/drivers/scsi/ufs/vendor/ufs-mediatek-mod.ko,ramdisk,Y,Y,user/userdebug/eng
++ufs-mediatek-dbg.ko,/drivers/scsi/ufs/ufs-mediatek-dbg.ko,ramdisk,Y,Y,user/userdebug/eng
++blocktag.ko,/drivers/misc/mediatek/blocktag/blocktag.ko,ramdisk,Y,Y,user/userdebug/eng
+ mtk-pmic-keys.ko,/drivers/input/keyboard/mtk-pmic-keys.ko,ramdisk,Y,Y,user/userdebug/eng
+ mtk-kpd.ko,/drivers/input/keyboard/mtk-kpd.ko,ramdisk,Y,Y,user/userdebug/eng
+ regulator-vibrator.ko,/drivers/leds/regulator-vibrator.ko,ramdisk,Y,Y,user/userdebug/eng
+diff --git a/kernel-5.15/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts b/kernel-5.15/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts
+index e785196c4e..a344dc24ee 100644
+--- a/kernel-5.15/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts
++++ b/kernel-5.15/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts
+@@ -1524,6 +1524,12 @@ &u3port1 {
+ 	status = "okay";
+ };
+ 
++&ufshci {
++	vcc-supply = <&mt6359p_vemc_reg>;
++	vccq2-supply = <&mt6359p_vufs_reg>;
++	status = "okay";
++};
++
+ &usb30 {
+ 	phys = <&u2port1 PHY_TYPE_USB2>;
+ 	vusb33-supply = <&mt6359p_vusb_reg>;
+diff --git a/vendor/mediatek/proprietary/bootable/bootloader/lk/project/aiot8395p1_64_bsp.mk b/vendor/mediatek/proprietary/bootable/bootloader/lk/project/aiot8395p1_64_bsp.mk
+index 94ad8b8422..e627e60fa4 100644
+--- a/vendor/mediatek/proprietary/bootable/bootloader/lk/project/aiot8395p1_64_bsp.mk
++++ b/vendor/mediatek/proprietary/bootable/bootloader/lk/project/aiot8395p1_64_bsp.mk
+@@ -3,7 +3,7 @@ LOCAL_DIR := $(GET_LOCAL_DIR)
+ TARGET := aiot8395p1_64_bsp
+ MODULES += app/mt_boot \
+            dev/lcm
+-MTK_UFS_SUPPORT = no
++MTK_UFS_SUPPORT = yes
+ MTK_UFS_OTP = no
+ MTK_EMMC_SUPPORT = yes
+ MTK_MMC_COMBO_DRV = yes
+-- 
+2.36.1
+
