@@ -189,6 +189,5 @@ Known issues:
 ---
 
  - Bluetooth not working
- - DSI Display not working
  - Audio codec not working
  - Ethernet 1 not working.
