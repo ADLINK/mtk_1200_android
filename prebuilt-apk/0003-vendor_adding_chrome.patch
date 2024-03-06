@@ -1,0 +1,22 @@
+commit 4ae2b2c3620b92ab97b58123ff73e9d659261969
+Author: shivaadlink <shivashankar.thiruchitrambalam@adlinktech.com>
+Date:   Wed Mar 6 16:14:04 2024 +0530
+
+    0003-vendor_adding_chrome.patch
+
+diff --git a/mediatek/proprietary/system/Chrome/Android.mk b/mediatek/proprietary/system/Chrome/Android.mk
+new file mode 100644
+index 0000000..74c4e0d
+--- /dev/null
++++ b/mediatek/proprietary/system/Chrome/Android.mk
+@@ -0,0 +1,10 @@
++LOCAL_PATH := $(call my-dir)
++
++include $(CLEAR_VARS)
++LOCAL_MODULE := Chrome
++LOCAL_SRC_FILES := chrome-120.apk
++LOCAL_MODULE_SUFFIX := .apk
++LOCAL_MODULE_CLASS := APPS
++LOCAL_CERTIFICATE := PRESIGNED
++LOCAL_MODULE_PATH := $(TARGET_OUT)/app
++include $(BUILD_PREBUILT)
