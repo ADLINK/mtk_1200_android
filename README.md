@@ -184,10 +184,42 @@ Camera
  - DSI panel connected dsi0 connect on smarc
  note: works parallely with HDMI display
 
+0v9
+---
+
+ - Audio TLV320 codec support added	
+ - playback 
+   
+   ```Shell
+   su
+   tinymix -D 0 'O072 I070 Switch'  1
+   tinymix -D 0 'O073 I071 Switch' 1
+   tinyplay /vendor/res/sound/ringtone.wav -D 0 -d 0
+   ```
+ - for playback Audio from DSI plannel
+   
+   ```Shell
+   su
+   tinymix -D 0 'O072 I020 Switch'  1
+   tinymix -D 0 'O073 I021 Switch' 1
+   ```
+ - Capture
+   
+    Syntax #tinycap /data/rec.wav -D 0 -d 9 <frequency> -b 32 -T 4
+   
+   ```Shell
+   tinycap /data/rec.wav -D 0 -d 9 -r 192000 -b 32 -T 4
+   Capturing sample: 2 ch, 192000 hz, 32 bit
+   Captured 757760 frames
+   ```
+
+0v10
+---
+ - eth1  =>RGMII -Rdwmac-mediatek
+
+ - Connect the Lan cable to Ethernet port
 
 Known issues:
 ---
 
  - Bluetooth not working
- - Audio codec not working
- - Ethernet 1 not working.
