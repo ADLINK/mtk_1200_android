@@ -1,0 +1,47 @@
+diff --git a/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts b/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts
+index db02c2b..44a97df 100644
+--- a/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts
++++ b/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts
+@@ -30,6 +30,13 @@ mtk_ctd: mtk_ctd {
+ 		bc12_sel = <0>;
+ 	};
+ 
++	extcon_usb1: extcon-usb1 {
++		compatible = "linux,extcon-usb-gpio";
++		pinctrl-names = "default";
++		pinctrl-0 = <&usb1_iddig>;
++		id-gpio = <&pio 130 GPIO_ACTIVE_HIGH>;
++	};
++
+ 	opp_table_apu_conn: opp-table-apu-conn {
+ 		compatible = "operating-points-v2";
+ 
+@@ -1611,6 +1618,13 @@ pins_cmd_dat {
+ 		};
+ 	};
+ 
++	usb1_iddig: usb1-iddig-default {
++		pins-cmd-dat {
++			pinmux = <PINMUX_GPIO130__FUNC_GPIO130>;
++			input-enable;
++			bias-pull-up;
++		};
++	};
+ 	subpmic_default: subpmicdefault {
+ 		subpmic_pin_irq: pin_irq {
+ 			pinmux = <PINMUX_GPIO101__FUNC_GPIO101>;
+@@ -1708,6 +1722,14 @@ connector {
+ 	};
+ };
+ 
++&ssusb2 {
++        pinctrl-names = "default";
++        dr_mode = "host"; /* 1: host, 2: device, 3 dual-mode */
++        mediatek,clk-mgr;
++        status = "okay";
++};
++
++
+ //&ssusb1 {
+ //	vusb33-supply = <&mt6359p_vusb_reg>;
+ //	dr_mode = "peripheral";

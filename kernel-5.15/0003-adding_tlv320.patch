@@ -1,0 +1,396 @@
+commit b1384629c6ef1c50cb283d53bb7e7fe294727421
+Author: Shiva1492 <shivashankar.thiruchitrambalam@adlinktech.com>
+Date:   Thu Jan 18 20:26:10 2024 +0530
+
+    adding tlv320
+
+diff --git a/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts b/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts
+index cb8432471..62606609b 100644
+--- a/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts
++++ b/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts
+@@ -23,11 +23,6 @@
+ #define ROOT_NODE &odm
+ 
+ ROOT_NODE {
+-	dmic_codec: dmic_codec {
+-		compatible = "dmic-codec";
+-		status = "okay";
+-	};
+-
+ 	mtk_ctd: mtk_ctd {
+ 		compatible = "mediatek,mtk_ctd";
+ 		bc12 = <&mt6360_chg>;
+@@ -286,6 +281,25 @@ tboard_thermistor3: tboard_thermistor3 {
+ 		status = "disabled";
+ 	};
+ 
++        codec1_vreg: regulator-codec-tlv320aic3x {
++                compatible = "regulator-fixed";
++                regulator-name = "codec_vreg";
++                startup-delay-us = <100>;
++                enable-active-high;
++                regulator-min-microvolt = <1930000>;
++                regulator-max-microvolt = <1930000>;
++        };
++
++
++	codec_vreg: regulator-codec1-tlv320aic3x {
++                compatible = "regulator-fixed";
++                regulator-name = "codec_vreg";
++                startup-delay-us = <100>;
++                enable-active-high;
++                regulator-min-microvolt = <3300000>;
++                regulator-max-microvolt = <3300000>;
++        };
++
+ 	usb_p1_vbus: regulator@0 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "vbus1";
+@@ -353,8 +367,12 @@ &adsp_pcm {
+ };
+ 
+ &afe {
+-	mediatek,dmic-iir-on;
+-	status = "okay";
++        #sound-dai-cells = <0>;
++        mediatek,etdm-out1-multi-pin-mode = <1>;
++        mediatek,dmic-iir-on;
++        mediatek,etdm-in2-cowork-source=<2>;
++        etdm-in2-cowork-source=<2>;
++        status = "okay";
+ };
+ 
+ &apusys_rv {
+@@ -560,6 +578,18 @@ gpio2: gpio_exp2@3e {
+ 		gpio-controller;
+ 	};
+ 
++
++        tlv320aic310x: tlv320aic310x@18 {
++                        compatible = "ti,tlv320aic3x";
++                        #sound-dai-cells = <0>;
++                        reg = <0x18>;
++                        ai3x-micbias-vg = <2>; /* MICBIAS_2_5V */
++                        status = "okay";
++                        AVDD-supply = <&codec_vreg>;
++                        IOVDD-supply = <&codec_vreg>;
++                        DRVDD-supply = <&codec_vreg>;
++                        DVDD-supply = <&codec1_vreg>;
++	};
+ };
+ 
+ &i2c4 {
+@@ -1641,11 +1671,12 @@ &scp_dvfs {
+ };
+ 
+ &sound {
+-	mediatek,hdmi-codec = <&hdmi0>;
+-	mediatek,dmic-codec = <&dmic_codec>;
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&aud_pins_default>;
+-	status = "okay";
++        mediatek,hdmi-codec = <&hdmi0>;
++	mediatek,tlv-codec =<&tlv320aic310x>;
++        pinctrl-names = "default";
++        pinctrl-0 = <&aud_pins_default>;
++        status = "okay";
++
+ };
+ 
+ 
+diff --git a/arch/arm64/configs/aiot8395p1_64_bsp_debug_defconfig b/arch/arm64/configs/aiot8395p1_64_bsp_debug_defconfig
+index 257861728..c33149b60 100644
+--- a/arch/arm64/configs/aiot8395p1_64_bsp_debug_defconfig
++++ b/arch/arm64/configs/aiot8395p1_64_bsp_debug_defconfig
+@@ -567,3 +567,11 @@ CONFIG_VIDEO_IMX214=m
+ CONFIG_PWM=y
+ CONFIG_BACKLIGHT_PWM=y
+ CONFIG_FB_SSD1307=y
++CONFIG_SND_SOC_TLV320AIC3X=m
++CONFIG_SND_SOC_TLV320AIC3X_I2C=m
++CONFIG_SND_SOC_SAMSUNG_SIMTEC_HERMES=m
++CONFIG_SOUND=m
++CONFIG_SND=m
++CONFIG_SND_SOC=m
++CONFIG_SND_SOC_SAMSUNG=m
++CONFIG_ARCH_S3C24XX=m
+diff --git a/arch/arm64/configs/aiot8395p1_64_bsp_defconfig b/arch/arm64/configs/aiot8395p1_64_bsp_defconfig
+index a3ce3a7c0..0c93a5988 100644
+--- a/arch/arm64/configs/aiot8395p1_64_bsp_defconfig
++++ b/arch/arm64/configs/aiot8395p1_64_bsp_defconfig
+@@ -566,3 +566,11 @@ CONFIG_VIDEO_IMX214=m
+ CONFIG_PWM=y
+ CONFIG_BACKLIGHT_PWM=y
+ CONFIG_FB_SSD1307=y
++CONFIG_SND_SOC_TLV320AIC3X=m
++CONFIG_SND_SOC_TLV320AIC3X_I2C=m
++CONFIG_SND_SOC_SAMSUNG_SIMTEC_HERMES=m
++CONFIG_SOUND=m
++CONFIG_SND=m
++CONFIG_SND_SOC=m
++CONFIG_SND_SOC_SAMSUNG=m
++CONFIG_ARCH_S3C24XX=m
+diff --git a/sound/soc/codecs/tlv320aic3x.c b/sound/soc/codecs/tlv320aic3x.c
+index 7731593a5..1296bb421 100644
+--- a/sound/soc/codecs/tlv320aic3x.c
++++ b/sound/soc/codecs/tlv320aic3x.c
+@@ -49,6 +49,7 @@
+ 
+ #include "tlv320aic3x.h"
+ 
++#define CONFIG_ARCH_ADLINKTECH 1
+ #define AIC3X_NUM_SUPPLIES	4
+ static const char *aic3x_supply_names[AIC3X_NUM_SUPPLIES] = {
+ 	"IOVDD",	/* I/O Voltage */
+@@ -90,34 +91,34 @@ struct aic3x_priv {
+ };
+ 
+ static const struct reg_default aic3x_reg[] = {
+-	{   0, 0x00 }, {   1, 0x00 }, {   2, 0x00 }, {   3, 0x10 },
+-	{   4, 0x04 }, {   5, 0x00 }, {   6, 0x00 }, {   7, 0x00 },
+-	{   8, 0x00 }, {   9, 0x00 }, {  10, 0x00 }, {  11, 0x01 },
+-	{  12, 0x00 }, {  13, 0x00 }, {  14, 0x00 }, {  15, 0x80 },
+-	{  16, 0x80 }, {  17, 0xff }, {  18, 0xff }, {  19, 0x78 },
+-	{  20, 0x78 }, {  21, 0x78 }, {  22, 0x78 }, {  23, 0x78 },
+-	{  24, 0x78 }, {  25, 0x00 }, {  26, 0x00 }, {  27, 0xfe },
+-	{  28, 0x00 }, {  29, 0x00 }, {  30, 0xfe }, {  31, 0x00 },
+-	{  32, 0x18 }, {  33, 0x18 }, {  34, 0x00 }, {  35, 0x00 },
+-	{  36, 0x00 }, {  37, 0x00 }, {  38, 0x00 }, {  39, 0x00 },
+-	{  40, 0x00 }, {  41, 0x00 }, {  42, 0x00 }, {  43, 0x80 },
+-	{  44, 0x80 }, {  45, 0x00 }, {  46, 0x00 }, {  47, 0x00 },
+-	{  48, 0x00 }, {  49, 0x00 }, {  50, 0x00 }, {  51, 0x04 },
+-	{  52, 0x00 }, {  53, 0x00 }, {  54, 0x00 }, {  55, 0x00 },
+-	{  56, 0x00 }, {  57, 0x00 }, {  58, 0x04 }, {  59, 0x00 },
+-	{  60, 0x00 }, {  61, 0x00 }, {  62, 0x00 }, {  63, 0x00 },
+-	{  64, 0x00 }, {  65, 0x04 }, {  66, 0x00 }, {  67, 0x00 },
+-	{  68, 0x00 }, {  69, 0x00 }, {  70, 0x00 }, {  71, 0x00 },
+-	{  72, 0x04 }, {  73, 0x00 }, {  74, 0x00 }, {  75, 0x00 },
+-	{  76, 0x00 }, {  77, 0x00 }, {  78, 0x00 }, {  79, 0x00 },
+-	{  80, 0x00 }, {  81, 0x00 }, {  82, 0x00 }, {  83, 0x00 },
+-	{  84, 0x00 }, {  85, 0x00 }, {  86, 0x00 }, {  87, 0x00 },
+-	{  88, 0x00 }, {  89, 0x00 }, {  90, 0x00 }, {  91, 0x00 },
+-	{  92, 0x00 }, {  93, 0x00 }, {  94, 0x00 }, {  95, 0x00 },
+-	{  96, 0x00 }, {  97, 0x00 }, {  98, 0x00 }, {  99, 0x00 },
+-	{ 100, 0x00 }, { 101, 0x00 }, { 102, 0x02 }, { 103, 0x00 },
+-	{ 104, 0x00 }, { 105, 0x00 }, { 106, 0x00 }, { 107, 0x00 },
+-	{ 108, 0x00 }, { 109, 0x00 },
++        {   0, 0x00 }, {   1, 0x00 }, {   2, 0x00 }, {   3, 0x10 },
++        {   4, 0x04 }, {   5, 0x00 }, {   6, 0x00 }, {   7, 0x00 },
++        {   8, 0x00 }, {   9, 0x00 }, {  10, 0x00 }, {  11, 0x01 },
++        {  12, 0x00 }, {  13, 0x00 }, {  14, 0x00 }, {  15, 0x80 },
++        {  16, 0x80 }, {  17, 0xff }, {  18, 0xff }, {  19, 0x78 },
++        {  20, 0x78 }, {  21, 0x78 }, {  22, 0x78 }, {  23, 0x78 },
++        {  24, 0x78 }, {  25, 0x00 }, {  26, 0x00 }, {  27, 0xfe },
++        {  28, 0x00 }, {  29, 0x00 }, {  30, 0xfe }, {  31, 0x00 },
++        {  32, 0x18 }, {  33, 0x18 }, {  34, 0x00 }, {  35, 0x00 },
++        {  36, 0x00 }, {  37, 0x00 }, {  38, 0x00 }, {  39, 0x00 },
++        {  40, 0x00 }, {  41, 0x00 }, {  42, 0x00 }, {  43, 0x80 },
++        {  44, 0x80 }, {  45, 0x00 }, {  46, 0x00 }, {  47, 0x00 },
++        {  48, 0x00 }, {  49, 0x00 }, {  50, 0x00 }, {  51, 0x04 },
++        {  52, 0x00 }, {  53, 0x00 }, {  54, 0x00 }, {  55, 0x00 },
++        {  56, 0x00 }, {  57, 0x00 }, {  58, 0x04 }, {  59, 0x00 },
++        {  60, 0x00 }, {  61, 0x00 }, {  62, 0x00 }, {  63, 0x00 },
++        {  64, 0x00 }, {  65, 0x04 }, {  66, 0x00 }, {  67, 0x00 },
++        {  68, 0x00 }, {  69, 0x00 }, {  70, 0x00 }, {  71, 0x00 },
++        {  72, 0x04 }, {  73, 0x00 }, {  74, 0x00 }, {  75, 0x00 },
++        {  76, 0x00 }, {  77, 0x00 }, {  78, 0x00 }, {  79, 0x00 },
++        {  80, 0x00 }, {  81, 0x00 }, {  82, 0x00 }, {  83, 0x00 },
++        {  84, 0x00 }, {  85, 0x00 }, {  86, 0x00 }, {  87, 0x00 },
++        {  88, 0x00 }, {  89, 0x00 }, {  90, 0x00 }, {  91, 0x00 },
++        {  92, 0x00 }, {  93, 0x00 }, {  94, 0x00 }, {  95, 0x00 },
++        {  96, 0x00 }, {  97, 0x00 }, {  98, 0x00 }, {  99, 0x00 },
++        { 100, 0x00 }, { 101, 0x00 }, { 102, 0x02 }, { 103, 0x00 },
++        { 104, 0x00 }, { 105, 0x00 }, { 106, 0x00 }, { 107, 0x00 },
++        { 108, 0x00 }, { 109, 0x00 },
+ };
+ 
+ static bool aic3x_volatile_reg(struct device *dev, unsigned int reg)
+@@ -1581,6 +1582,14 @@ static int aic3x_init(struct snd_soc_component *component)
+ 	switch (aic3x->model) {
+ 	case AIC3X_MODEL_3X:
+ 	case AIC3X_MODEL_33:
++#ifdef CONFIG_ARCH_ADLINKTECH
++                  snd_soc_component_write(component, DACL1_2_HPLOUT_VOL, 0x80);
++                  snd_soc_component_write(component, DACL1_2_HPROUT_VOL, 0x80);
++                  snd_soc_component_write(component, MIC3LR_2_LADC_CTRL, 0x0f);
++                  snd_soc_component_write(component, LAGC_CTRL_A, 0x80);
++                  snd_soc_component_write(component, RAGC_CTRL_A, 0x80);
++          break;
++#endif
+ 	case AIC3X_MODEL_3106:
+ 		aic3x_mono_init(component);
+ 		break;
+diff --git a/sound/soc/mediatek/mt8195/mt8195-evb.c b/sound/soc/mediatek/mt8195/mt8195-evb.c
+index efc83d58a..e294011ca 100644
+--- a/sound/soc/mediatek/mt8195/mt8195-evb.c
++++ b/sound/soc/mediatek/mt8195/mt8195-evb.c
+@@ -21,6 +21,8 @@
+ #endif
+ #include "mt8195-afe-common.h"
+ 
++#define CONFIG_ARCH_ADLINKTECH 1
++
+ struct mt8195_evb_priv {
+ 	struct device_node *platform_node;
+ #if IS_ENABLED(CONFIG_SND_SOC_MT8195_ADSP)
+@@ -35,6 +37,11 @@ struct mt8195_evb_priv {
+ #if IS_ENABLED(CONFIG_SND_SOC_DMIC)
+ 	struct device_node *dmic_codec_node;
+ #endif
++#ifdef CONFIG_ARCH_ADLINKTECH
++#if IS_ENABLED(CONFIG_SND_SOC_TLV320AIC3X)
++	struct device_node *tlv320_codec_node;
++#endif
++#endif
+ };
+ 
+ #if IS_ENABLED(CONFIG_MTK_HDMI_RX)
+@@ -297,6 +304,45 @@ static struct snd_soc_ops mt2715_evb_etdm_with_dtb_ops = {
+ };
+ #endif
+ 
++static int mt8195_etdm_hw_params(struct snd_pcm_substream *substream,
++                                 struct snd_pcm_hw_params *params)
++{
++        struct snd_soc_pcm_runtime *rtd = substream->private_data;
++        struct snd_soc_card *card = rtd->card;
++        struct snd_soc_dai *cpu_dai = asoc_rtd_to_cpu(rtd, 0);
++        unsigned int rate = params_rate(params);
++	bool tx = substream->stream == SNDRV_PCM_STREAM_PLAYBACK;
++#ifdef CONFIG_ARCH_ADLINKTECH
++        struct snd_soc_dai *codec_dai = asoc_rtd_to_codec(rtd, 0);
++        unsigned int mclk_fs_ratio = 256;
++#else
++        unsigned int mclk_fs_ratio = 128;
++#endif
++        unsigned int mclk_fs = rate * mclk_fs_ratio;
++        int ret;
++        ret = snd_soc_dai_set_sysclk(cpu_dai, 0, mclk_fs, tx ? SND_SOC_CLOCK_OUT : SND_SOC_CLOCK_IN);
++
++        if (ret) {
++                dev_err(card->dev, "failed to set sysclk\n");
++                return ret;
++        }
++#ifdef CONFIG_ARCH_ADLINKTECH
++        ret = snd_soc_dai_set_sysclk(codec_dai, 0, mclk_fs,tx ? SND_SOC_CLOCK_OUT : SND_SOC_CLOCK_IN);
++
++        if (ret) {
++                dev_err(card->dev, "failed to set codec sysclk\n");
++                return ret;
++        }
++#endif
++
++        return 0;
++}
++
++static const struct snd_soc_ops mt8195_etdm_ops = {
++        .hw_params = mt8195_etdm_hw_params,
++};
++
++
+ #if IS_ENABLED(CONFIG_SND_SOC_MT6359P)
+ #include "../../codecs/mt6359p.h"
+ 
+@@ -493,6 +539,21 @@ int mt8195_mt6359_init(struct snd_soc_pcm_runtime *rtd)
+ }
+ #endif
+ 
++static int mt8195_etdm_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
++                                       struct snd_pcm_hw_params *params)
++{
++        /* fix BE i2s format to 32bit, clean param mask first */
++        snd_mask_reset_range(hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT),
++                             0, SNDRV_PCM_FORMAT_LAST);
++#ifdef CONFIG_ARCH_ADLINKTECH
++        params_set_format(params, SNDRV_PCM_FORMAT_S16_LE);
++#else
++        params_set_format(params, SNDRV_PCM_FORMAT_S24_LE);
++#endif
++        return 0;
++}
++
++
+ SND_SOC_DAILINK_DEFS(dl2_fe,
+ 	DAILINK_COMP_ARRAY(COMP_CPU("DL2")),
+ 	DAILINK_COMP_ARRAY(COMP_DUMMY()),
+@@ -608,9 +669,8 @@ SND_SOC_DAILINK_DEFS(etdm1_hostless_lpbk_fe,
+ SND_SOC_DAILINK_DEFS(dl_src_be,
+ 	DAILINK_COMP_ARRAY(COMP_CPU("DL_SRC")),
+ #if IS_ENABLED(CONFIG_SND_SOC_MT6359P)
+-	DAILINK_COMP_ARRAY(COMP_CODEC("mt6359p-sound", "mt6359-snd-codec-aif1")),
+-#else
+-	DAILINK_COMP_ARRAY(COMP_DUMMY()),
++        DAILINK_COMP_ARRAY(COMP_CODEC("mt6359p-sound", "mt6359-snd-codec-aif1")),
++
+ #endif
+ 	DAILINK_COMP_ARRAY(COMP_EMPTY()));
+ 
+@@ -1115,6 +1175,8 @@ static struct snd_soc_dai_link mt8195_evb_dai_links[] = {
+ 			SND_SOC_DAIFMT_NB_NF |
+ 			SND_SOC_DAIFMT_CBS_CFS,
+ 		.dpcm_capture = 1,
++                .ops = &mt8195_etdm_ops,
++                .be_hw_params_fixup = mt8195_etdm_hw_params_fixup,
+ 		SND_SOC_DAILINK_REG(etdm1_in_be),
+ 	},
+ 	[DAI_LINK_ETDM2_IN_BE] = {
+@@ -1124,22 +1186,19 @@ static struct snd_soc_dai_link mt8195_evb_dai_links[] = {
+ 			SND_SOC_DAIFMT_NB_NF |
+ 			SND_SOC_DAIFMT_CBS_CFS,
+ 		.dpcm_capture = 1,
++                .ops = &mt8195_etdm_ops,
++                .be_hw_params_fixup = mt8195_etdm_hw_params_fixup,
+ 		SND_SOC_DAILINK_REG(etdm2_in_be),
+ 	},
+ 	[DAI_LINK_ETDM1_OUT_BE] = {
+ 		.name = "ETDM1_OUT_BE",
+ 		.no_pcm = 1,
+-#if IS_ENABLED(CONFIG_SND_SOC_MT2715_MT6359_MTK0858)
+-		.dai_fmt = SND_SOC_DAIFMT_DSP_A |
+-			SND_SOC_DAIFMT_NB_NF |
+-			SND_SOC_DAIFMT_CBS_CFS,
+-		.ops = &mt2715_evb_etdm_with_dtb_ops,
+-#else
+ 		.dai_fmt = SND_SOC_DAIFMT_I2S |
+ 			SND_SOC_DAIFMT_NB_NF |
+ 			SND_SOC_DAIFMT_CBS_CFS,
+-#endif
+ 		.dpcm_playback = 1,
++                .ops = &mt8195_etdm_ops,
++                .be_hw_params_fixup = mt8195_etdm_hw_params_fixup,
+ 		SND_SOC_DAILINK_REG(etdm1_out_be),
+ 	},
+ 	[DAI_LINK_ETDM2_OUT_BE] = {
+@@ -1498,6 +1557,32 @@ static int mt8195_evb_dev_probe(struct platform_device *pdev)
+ 	}
+ #endif
+ 
++#ifdef CONFIG_ARCH_ADLINKTECH
++#if IS_ENABLED(CONFIG_SND_SOC_TLV320AIC3X)
++	priv->tlv320_codec_node = of_parse_phandle(pdev->dev.of_node,
++						   "mediatek,tlv-codec", 0);
++	if (!priv->tlv320_codec_node) {
++		dev_err(&pdev->dev, "Property 'tlv-codec' missing or invalid\n");
++	} else {
++
++		mt8195_evb_dai_links[DAI_LINK_ETDM1_OUT_BE].codecs->of_node =
++			priv->tlv320_codec_node;
++		mt8195_evb_dai_links[DAI_LINK_ETDM1_OUT_BE].num_codecs = 1;
++		mt8195_evb_dai_links[DAI_LINK_ETDM1_OUT_BE].codecs->name = NULL;
++		mt8195_evb_dai_links[DAI_LINK_ETDM1_OUT_BE].codecs->dai_name =
++			"tlv320aic3x-hifi";
++
++	        mt8195_evb_dai_links[DAI_LINK_ETDM2_IN_BE].codecs->of_node = priv->tlv320_codec_node;
++		mt8195_evb_dai_links[DAI_LINK_ETDM2_IN_BE].num_codecs = 1;
++                mt8195_evb_dai_links[DAI_LINK_ETDM2_IN_BE].codecs->name = NULL;
++                mt8195_evb_dai_links[DAI_LINK_ETDM2_IN_BE].codecs->dai_name =
++                        "tlv320aic3x-hifi";
++
++
++	}
++#endif
++#endif
++
+ #if IS_ENABLED(CONFIG_SND_SOC_DMIC)
+ 	priv->dmic_codec_node = of_parse_phandle(pdev->dev.of_node,
+ 						 "mediatek,dmic-codec", 0);

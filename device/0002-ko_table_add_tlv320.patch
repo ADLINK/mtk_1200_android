@@ -1,0 +1,29 @@
+diff --git a/mediateksample/aiot8395p1_64_bsp/ko_order_table.csv b/mediateksample/aiot8395p1_64_bsp/ko_order_table.csv
+index e4ca918..bc9d3be 100644
+--- a/mediateksample/aiot8395p1_64_bsp/ko_order_table.csv
++++ b/mediateksample/aiot8395p1_64_bsp/ko_order_table.csv
+@@ -196,12 +196,23 @@ audio_ipi_framework.ko,/drivers/misc/mediatek/hifidsp_audio_ipi/common/framework
+ audio_ipi_platform.ko,/drivers/misc/mediatek/hifidsp_audio_ipi/hifi4_v1/audio_ipi_platform.ko,vendor,Y,N,user/userdebug/eng
+ hifi_dsp.ko,/drivers/misc/mediatek/hifi_dsp/hifi_dsp.ko,vendor,Y,N,user/userdebug/eng
+ mtk-afe-external.ko,/sound/soc/mediatek/common/mtk-afe-external.ko,vendor,Y,N,user/userdebug/eng
+-snd-soc-dmic.ko,/sound/soc/codecs/snd-soc-dmic.ko,vendor,Y,N,user/userdebug/eng
+ mt6359p-accdet.ko,/sound/soc/codecs/mt6359p-accdet.ko,vendor,Y,N,user/userdebug/eng
+ snd-soc-mt6359.ko,/sound/soc/codecs/snd-soc-mt6359.ko,vendor,Y,N,user/userdebug/eng
+ snd-soc-mtk-common.ko,/sound/soc/mediatek/common/snd-soc-mtk-common.ko,vendor,Y,N,user/userdebug/eng
+ snd-soc-mt8195-afe.ko,/sound/soc/mediatek/mt8195/snd-soc-mt8195-afe.ko,vendor,Y,N,user/userdebug/eng
+ snd-soc-mt8195-adsp-pcm.ko,/sound/soc/mediatek/mt8195/snd-soc-mt8195-adsp-pcm.ko,vendor,Y,N,user/userdebug/eng
++soundcore.ko,/sound/soundcore.ko,ramdisk,Y,N,user/userdebug/eng
++snd.ko,/sound/core/snd.ko,vendor,Y,N,user/userdebug/eng
++snd-pcm.ko,/sound/core/snd-pcm.ko,vendor,Y,N,user/userdebug/eng
++snd-timer.ko,/sound/core/snd-timer.ko,vendor,Y,N,user/userdebug/eng
++snd-hwdep.ko,/sound/core/snd-hwdep.ko,vendor,Y,N,user/userdebug/eng
++snd-compress.ko,/sound/core/snd-compress.ko,vendor,Y,N,user/userdebug/eng
++snd-hrtimer.ko,/sound/core/snd-hrtimer.ko,vendor,Y,N,user/userdebug/eng
++snd-pcm-dmaengine.ko,/sound/core/snd-pcm-dmaengine.ko,vendor,Y,N,user/userdebug/eng
++snd-rawmidi.ko,/sound/core/snd-rawmidi.ko,vendor,Y,N,user/userdebug/eng
++snd-soc-core.ko,/sound/soc/snd-soc-core.ko,vendor,Y,N,user/userdebug/eng
++snd-soc-tlv320aic3x.ko,/sound/soc/codecs/snd-soc-tlv320aic3x.ko,vendor,Y,N,user/userdebug/eng
++snd-soc-tlv320aic3x-i2c.ko,/sound/soc/codecs/snd-soc-tlv320aic3x-i2c.ko,vendor,Y,N,user/userdebug/eng
+ mt8195-evb.ko,/sound/soc/mediatek/mt8195/mt8195-evb.ko,vendor,Y,N,user/userdebug/eng
+ asrc-common.ko,/drivers/misc/mediatek/asrc/common/asrc-common.ko,vendor,Y,N,user/userdebug/eng
+ mt8195-asrc.ko,/drivers/misc/mediatek/asrc/v1/mt8195-asrc.ko,vendor,Y,N,user/userdebug/eng
