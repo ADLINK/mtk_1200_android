@@ -7,7 +7,7 @@
 
 ## 2. Supported Modules
 
-- LEC-MTK1200
+- LEC-MTK-I1200
 
 
 ## 3. Supported Features & Interfaces
