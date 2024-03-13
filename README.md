@@ -12,7 +12,7 @@
 
 ## 3. Supported Features & Interfaces
 
-### 3.1 LEC-MTK1200 (based on I-Pi SMARC plus carrier + LEC-MTK1200 Dev Kit)
+### 3.1 LEC-MTKI1200 (based on I-Pi SMARC plus carrier + LEC-MTKI1200 Dev Kit)
 
 | Interfaces                                 | Support |
 | ------------------------------------------ | ------- |
@@ -36,13 +36,13 @@
 | I2S (Audio TLV320 codec )                  | Y       |
 | I2C                                        | Y       |
 | GPIO                                       | Y       |
-| SDIO                                       | Y       |
+| RTC                                        | Y       |
 
 
 
 ## 4. Documentation
 
-Refer to the [wiki](https://github.com/AdlinkCCoE/mtk_1200_android/blob/main/INSTALL.md) page for instructions on building the Android13 as well as flashing the image.
+Refer to the [wiki](https://github.com/ADLINK/mtk_1200_android/blob/main/INSTALL.md) page for instructions on building the Android13 as well as flashing the image.
 
 ## 5. Known Issues
 
