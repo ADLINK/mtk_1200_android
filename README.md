@@ -22,4 +22,4 @@ You can follow the same steps to build your own customized BSP based on your int
 
 # 4. Software Documentation
 
-Refer to the [wiki](https://github.com/AdlinkCCoE/mtk_1200_android/wiki) page for instructions on building the Yocto as well as flashing the image.
+Refer to the [wiki](https://github.com/AdlinkCCoE/mtk_1200_android/blob/main/INSTALL.md) page for instructions on building the Yocto as well as flashing the image.
