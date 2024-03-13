@@ -42,7 +42,7 @@
 
 ## 4. Documentation
 
-Refer to the [wiki](https://github.com/AdlinkCCoE/mtk_1200_android/wiki) page for instructions on building the Android13 as well as flashing the image.
+Refer to the [wiki](https://github.com/AdlinkCCoE/mtk_1200_android/tree/Android13/kernel-5.15) page for instructions on building the Android13 as well as flashing the image.
 
 ## 5. Known Issues
 
