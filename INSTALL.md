@@ -136,11 +136,11 @@ On successfully compilation, a message mentioning `build completed successfully`
 
 Note: It is recommended to compile the base version, before proceeding with patches .
 
-- Git clone the patches from git to the android project folder 
+- Git clone the patches from git to the Android13 project folder 
 
   ```shell
   cd ~/android_bsp
-  git clone https://github.com/ADLINK/mtk_1200_android
+  git clone https://github.com/ADLINK/mtk_1200_android -b Android13
   ```
 
    For access contact :[ipi.wiki@adlinktech.com](ipi.wiki@adlinktech.com)
