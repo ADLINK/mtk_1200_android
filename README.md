@@ -36,7 +36,7 @@
 | I2S (Audio TLV320 codec )                  | Y       |
 | I2C                                        | Y       |
 | GPIO                                       | Y       |
-| RTC                                        | Y       |
+
 
 
 
