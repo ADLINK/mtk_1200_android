@@ -11,15 +11,15 @@ You can follow the same steps to build your own customized BSP based on your int
 
 # 2. Available Branches
 
-1. [Android13](https://github.com/AdlinkCCoE/mtk_1200_android/tree/Android13)
+1. [Android13](https://github.com/ADLINK/mtk_1200_android/tree/Android13)
 
 
 # 3. Adlink Supported Patches
 
-- Patches for the Mediatek I1200-based products for the Adlink dev kit will be found [here](https://github.com/AdlinkCCoE/mtk_1200_android/tree/Android13/kernel-5.15).
+- Patches for the Mediatek I1200-based products for the Adlink dev kit will be found [here](https://github.com/ADLINK/mtk_1200_android/tree/Android13/kernel-5.15).
 - The patches that we created and have are based on the Meditek Android Kernel.
 - This patch is based on kernel 5.15.x version.
 
 # 4. Software Documentation
 
-Refer to the [wiki](https://github.com/AdlinkCCoE/mtk_1200_android/blob/main/INSTALL.md) page for instructions on building the Yocto as well as flashing the image.
+Refer to the [wiki](https://github.com/ADLINK/mtk_1200_android/blob/main/INSTALL.md) page for instructions on building the Yocto as well as flashing the image.
