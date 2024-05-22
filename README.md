@@ -1,4 +1,4 @@
-This repo is dedicated to the ADLINK LEC-I1200-based modules. Here you can find the Yocto BSP recipes.
+This repo is dedicated to the ADLINK LEC-I1200-based modules. Here you can find the Android BSP recipes.
 
 You can follow the same steps to build your own customized BSP based on your interests.
 
@@ -22,4 +22,4 @@ You can follow the same steps to build your own customized BSP based on your int
 
 # 4. Software Documentation
 
-Refer to the [wiki](https://github.com/ADLINK/mtk_1200_android/blob/main/INSTALL.md) page for instructions on building the Yocto as well as flashing the image.
+Refer to the [wiki](https://github.com/ADLINK/mtk_1200_android/wiki) page for instructions on building the Yocto as well as flashing the image.

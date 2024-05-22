@@ -254,12 +254,12 @@ Note: It is recommended to compile the base version, before proceeding with patc
   cp ~/mtk_1200_android-main/prebuilt-apk/0002-build_adding_chrome.patch ~/android_bsp/build/0002-build_adding_chrome.patch
   cp ~/mtk_1200_android-main/prebuilt-apk/0003-vendor_adding_chrome.patch ~/android_bsp/vendor/0003
    vendor_adding_chrome.patch
-  git apply ~/android_bsp/vendor/0003-vendor_adding_chrome.patch
-  git apply ~/android_bsp/build/0002-build_adding_chrome.patch
+  git apply ~/android_bsp/prebuilt-apk/0003-vendor_adding_chrome.patch
+  git apply ~/android_bsp/prebuilt-apk/0002-build_adding_chrome.patch
   #Download prebuilt APK
   cd ~/
   wget https://hq0epm0west0us0storage.blob.core.windows.net/development/MTK-LEC-I1200/android/chrome-120.apk
-  cp ~/chrome-120. apk vendor/mediatek/proprietary/system/Chrome/
+  cp ~/chrome-120.apk vendor/mediatek/proprietary/system/Chrome/
   ```
   
 - After applying all patches, rebuild the source
