@@ -1,0 +1,26 @@
+From 0160e8141abc8d2102b0ef3b5117d4e2e3d868c9 Mon Sep 17 00:00:00 2001
+From: shiva-adlink <shivashankar.t@adlinktech.com>
+Date: Wed, 30 Jul 2025 15:23:09 +0530
+Subject: [PATCH] lec-mtk1200: Adding prebuilt-apk
+
+Signed-off-by: shiva-adlink <shivashankar.t@adlinktech.com>
+---
+ system/mssi_aiot_64_arm82/device.mk | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/system/mssi_aiot_64_arm82/device.mk b/system/mssi_aiot_64_arm82/device.mk
+index dd03b06..24d42ad 100644
+--- a/system/mssi_aiot_64_arm82/device.mk
++++ b/system/mssi_aiot_64_arm82/device.mk
+@@ -10,6 +10,8 @@ PRODUCT_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay/
+ # add CarBTDemo
+ #PRODUCT_PACKAGES += CarBTDemo
+ 
++PRODUCT_PACKAGES += Neuropilotjnidemo
++PRODUCT_PACKAGES += Chrome
+ #add ppccli/toybox1
+ PRODUCT_PACKAGES += toybox1
+ PRODUCT_PACKAGES += ppccli
+-- 
+2.34.1
+

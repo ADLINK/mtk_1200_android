@@ -1,0 +1,34 @@
+From dfde89961a520fdb0db56d82a52e49e4ba9577f7 Mon Sep 17 00:00:00 2001
+From: shiva-adlink <shivashankar.t@adlinktech.com>
+Date: Wed, 25 Jun 2025 20:50:19 +0530
+Subject: [PATCH 2/2] lec-mtk1200: HDMI-Primary-device
+
+Signed-off-by: shiva-adlink <shivashankar.t@adlinktech.com>
+---
+ device.mk | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/device.mk b/device.mk
+index df767a3..ba6b9f2 100644
+--- a/device.mk
++++ b/device.mk
+@@ -47,6 +47,16 @@ PRODUCT_PACKAGES += asrc-demo
+ 
+ PRODUCT_PROPERTY_OVERRIDES += ro.sf.lcd_density=240
+ 
++PRODUCT_DEFAULT_PROPERTY_OVERRIDES += vendor.debug.sf.dynamic_duration.switch=1
++PRODUCT_DEFAULT_PROPERTY_OVERRIDES += vendor.debug.sf.dynamic_duration.sf.late=15600000
++PRODUCT_DEFAULT_PROPERTY_OVERRIDES += vendor.debug.sf.dynamic_duration.app.late=16600000
++PRODUCT_DEFAULT_PROPERTY_OVERRIDES += vendor.debug.sf.dynamic_duration.sf.early=15600000
++PRODUCT_DEFAULT_PROPERTY_OVERRIDES += vendor.debug.sf.dynamic_duration.app.early=16600000
++PRODUCT_DEFAULT_PROPERTY_OVERRIDES += vendor.debug.sf.dynamic_duration.sf.earlyGl=15600000
++PRODUCT_DEFAULT_PROPERTY_OVERRIDES += vendor.debug.sf.dynamic_duration.app.earlyGl=16600000
++PRODUCT_DEFAULT_PROPERTY_OVERRIDES += vendor.debug.sf.dynamic_duration.sf.decouple=27600000
++PRODUCT_DEFAULT_PROPERTY_OVERRIDES += vendor.debug.sf.dynamic_duration.app.decouple=20000000
++
+ # touch related file for CTS
+ ifeq ($(strip $(CUSTOM_KERNEL_TOUCHPANEL)),generic)
+   PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.touchscreen.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.touchscreen.xml
+-- 
+2.49.0
+

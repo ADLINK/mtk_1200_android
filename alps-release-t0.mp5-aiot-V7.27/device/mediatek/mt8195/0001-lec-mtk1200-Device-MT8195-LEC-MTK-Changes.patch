@@ -1,0 +1,53 @@
+From f4a83a9916227636ab166f474dbc8ba4d30076da Mon Sep 17 00:00:00 2001
+From: shiva-adlink <shivashankar.t@adlinktech.com>
+Date: Wed, 25 Jun 2025 20:54:51 +0530
+Subject: [PATCH] lec-mtk1200: Device-MT8195-LEC-MTK-Changes
+
+Signed-off-by: shiva-adlink <shivashankar.t@adlinktech.com>
+---
+ device.mk          | 2 +-
+ init.mt8195.usb.rc | 2 +-
+ ueventd.mt8195.rc  | 1 +
+ 3 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/device.mk b/device.mk
+index 6ac9419..788e93b 100644
+--- a/device.mk
++++ b/device.mk
+@@ -1083,7 +1083,7 @@ endif
+ 
+ ifeq ($(strip $(MTK_FACTORY_RESET_PROTECTION_SUPPORT)),yes)
+ ifneq ($(filter yes,$(MTK_EMMC_SUPPORT) $(MTK_UFS_SUPPORT)),)
+-  PRODUCT_PROPERTY_OVERRIDES += ro.frp.pst=/dev/block/platform/bootdevice/by-name/frp
++  PRODUCT_PROPERTY_OVERRIDES += ro.frp.pst=/dev/block/by-name/frp
+ endif
+ endif
+ 
+diff --git a/init.mt8195.usb.rc b/init.mt8195.usb.rc
+index 56d44bd..e0f9b4c 100644
+--- a/init.mt8195.usb.rc
++++ b/init.mt8195.usb.rc
+@@ -46,7 +46,7 @@ on post-fs
+ on boot
+     setprop sys.usb.configfs 1
+     setprop sys.usb.ffs.aio_compat 1
+-    setprop vendor.usb.controller "11201000.usb"
++    setprop vendor.usb.controller "112a1000.usb"
+     setprop vendor.usb.acm_cnt 0
+     setprop vendor.usb.acm_port0 ""
+     setprop vendor.usb.acm_port1 ""
+diff --git a/ueventd.mt8195.rc b/ueventd.mt8195.rc
+index aaa84ff..eeec5cd 100644
+--- a/ueventd.mt8195.rc
++++ b/ueventd.mt8195.rc
+@@ -28,6 +28,7 @@
+ /dev/block/platform/bootdevice/by-name/md1img_b  0640    root    system
+ /dev/block/platform/bootdevice/by-name/md1dsp    0660    root    system
+ /dev/block/platform/bootdevice/by-name/boot_para 0640    root    system
++/dev/block/by-name/frp                           0660    root    system
+ 
+ /dev/block/platform/11230000.mmc/by-name/misc2     0660    root    system
+ /dev/block/platform/11230000.mmc/by-name/boot      0640    root    system
+-- 
+2.34.1
+

@@ -1,0 +1,73 @@
+From b38fd3ace8ef866cb416aa7022bd850810d58f20 Mon Sep 17 00:00:00 2001
+From: shiva-adlink <shivashankar.t@adlinktech.com>
+Date: Wed, 30 Jul 2025 15:30:09 +0530
+Subject: [PATCH 2/2] lec-mtk1200 : Adding-default-value-mixersetup
+
+Signed-off-by: shiva-adlink <shivashankar.t@adlinktech.com>
+---
+ device.mk      |  4 ++++
+ init.mt8195.rc | 10 ++++++++++
+ mixersetup.sh  | 15 +++++++++++++++
+ 3 files changed, 29 insertions(+)
+ create mode 100644 mixersetup.sh
+
+diff --git a/device.mk b/device.mk
+index 788e93b..3a5c9b4 100644
+--- a/device.mk
++++ b/device.mk
+@@ -1652,6 +1652,10 @@ PRODUCT_PROPERTY_OVERRIDES += ro.vendor.mtk_thermal_2_0=1
+ PRODUCT_COPY_FILES += vendor/mediatek/proprietary/external/thermal_core_lib/mt8195/thermal.conf:$(TARGET_COPY_OUT_VENDOR)/etc/thermal/thermal.conf
+ PRODUCT_COPY_FILES += vendor/mediatek/proprietary/external/thermal_core_lib/mt8195/disable_thermal_temp.conf:$(TARGET_COPY_OUT_VENDOR)/etc/thermal/disable_thermal_temp.conf
+ 
++#adding mixersetup
++PRODUCT_COPY_FILES += \
++	device/mediatek/mt8195/mixersetup.sh:vendor/bin/mixersetup.sh
++
+ # Support Audio TDM with mas lib for channel merge
+ ifeq ($(strip $(MTK_TDM_MAS_MUX_SUPPORT)), yes)
+   PRODUCT_PACKAGES += libmas
+diff --git a/init.mt8195.rc b/init.mt8195.rc
+index 5d481f7..0539ad2 100644
+--- a/init.mt8195.rc
++++ b/init.mt8195.rc
+@@ -1096,6 +1096,16 @@ on property:vendor.mtk.md1.status=reset
+ on boot
+     insmod /vendor/lib/modules/ethdr.ko
+ 
++#mixer script
++on boot
++    start set_tdm_route
++
++service set_tdm_route /system/bin/sh /vendor/bin/mixersetup.sh
++    class main
++    user root
++    oneshot
++    seclabel u:r:init:s0
++
+ # VSIM service (vendor OSI)
+ service osi /system/bin/osi
+     class main
+diff --git a/mixersetup.sh b/mixersetup.sh
+new file mode 100644
+index 0000000..7075e18
+--- /dev/null
++++ b/mixersetup.sh
+@@ -0,0 +1,15 @@
++#!/system/bin/sh
++
++sleep 5
++
++# Set TDM output switch paths for DSI
++tinymix -D 0 'O072 I020 Switch' 1 && echo "[set_tdm_route] Set O072 OK" > /data/text0.txt
++tinymix -D 0 'O073 I021 Switch' 1 && echo "[set_tdm_route] Set O073 OK" > /data/text1.txt
++
++# Terminal play
++tinymix -D 0 'O072 I070 Switch'  1 
++tinymix -D 0 'O073 I071 Switch' 1
++
++# set volume 90%
++
++tinymix -D 0 1599 115 115 
+-- 
+2.34.1
+

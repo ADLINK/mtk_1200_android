@@ -1,0 +1,797 @@
+From aebfb54af42f3105070834b9d574b169136c30cb Mon Sep 17 00:00:00 2001
+From: adlinkshiva <shivashankar.thiruchitrambalam@adlinktech.com>
+Date: Tue, 22 Apr 2025 15:25:51 +0530
+Subject: [PATCH 1/3] lec-mtk1200: Added-UFS-lec-mtk1200-base-change
+
+---
+ .../boot/dts/mediatek/aiot8395p1_64_bsp.dts   | 400 +++++++++++-------
+ .../boot/dts/mediatek/aiot8395p6_64_bsp.dts   |   9 +
+ arch/arm64/boot/dts/mediatek/mt8195.dts       |   1 +
+ .../configs/aiot8395p1_64_bsp_debug_defconfig |   9 +-
+ .../arm64/configs/aiot8395p1_64_bsp_defconfig |   9 +-
+ .../arm64/configs/aiot8395p6_64_bsp_defconfig |   4 +-
+ .../gpu/drm/panel/panel-boe-tv101wum-nl6.c    |  10 +-
+ 7 files changed, 288 insertions(+), 154 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts b/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts
+index 928d6e6aa..d3e1f1cd4 100644
+--- a/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts
++++ b/arch/arm64/boot/dts/mediatek/aiot8395p1_64_bsp.dts
+@@ -22,87 +22,24 @@
+ #define ROOT_NODE &odm
+ 
+ ROOT_NODE {
+-	charger: charger {
+-		compatible = "mediatek,charger";
+-		gauge = <&mtk_gauge>;
+-		charger = <&mt6360_chg>;
+-		bootmode = <&chosen>;
+-		pmic = <&pmic>;
+-
+-		algorithm_name = "Basic";
+-		charger_configuration= <0>;
+-
+-		/* common */
+-		battery_cv = <4000000>;
+-		max_charger_voltage = <6500000>;
+-		min_charger_voltage = <4600000>;
+-
+-		/* sw jeita */
+-		/* enable_sw_jeita; */
+-		jeita_temp_above_t4_cv = <4240000>;
+-		jeita_temp_t3_to_t4_cv = <4240000>;
+-		jeita_temp_t2_to_t3_cv = <4340000>;
+-		jeita_temp_t1_to_t2_cv = <4240000>;
+-		jeita_temp_t0_to_t1_cv = <4040000>;
+-		jeita_temp_below_t0_cv = <4040000>;
+-		temp_t4_thres = <50>;
+-		temp_t4_thres_minus_x_degree = <47>;
+-		temp_t3_thres = <45>;
+-		temp_t3_thres_minus_x_degree = <39>;
+-		temp_t2_thres = <10>;
+-		temp_t2_thres_plus_x_degree = <16>;
+-		temp_t1_thres = <0>;
+-		temp_t1_thres_plus_x_degree = <6>;
+-		temp_t0_thres = <0>;
+-		temp_t0_thres_plus_x_degree = <0>;
+-		temp_neg_10_thres = <0>;
+-
+-		/* battery temperature protection */
+-		enable_min_charge_temp;
+-		min_charge_temp = <0>;
+-		min_charge_temp_plus_x_degree = <6>;
+-		max_charge_temp = <50>;
+-		max_charge_temp_minus_x_degree = <47>;
+-
+-		/* charging current */
+-		usb_charger_current = <500000>;
+-		ac_charger_current = <2050000>;
+-		ac_charger_input_current = <3200000>;
+-		charging_host_charger_current = <1500000>;
+-
+-		/* dynamic mivr */
+-		enable_dynamic_mivr;
+-		min_charger_voltage_1 = <4400000>;
+-		min_charger_voltage_2 = <4200000>;
+-		max_dmivr_charger_current = <1800000>;
+-	};
+-
+ 	dmic_codec: dmic_codec {
+ 		compatible = "dmic-codec";
+ 		status = "okay";
+ 	};
+ 
+-	extcon_usb: extcon_usb {
+-		compatible = "mediatek,extcon-usb";
+-		vbus-supply = <&otg_vbus>;
+-		vbus-volt = <5000000>;
+-		charger = <&mt6360_chg>;
+-		tcpc = "type_c_port0";
+-		mediatek,bypss-typec-sink = <1>;
+-		vbus-current = <1800000>;
+-		port {
+-			usb_role: endpoint@0 {
+-				remote-endpoint = <&mtu3_drd_switch>;
+-			};
+-		};
+-	};
+-
+ 	mtk_ctd: mtk_ctd {
+ 		compatible = "mediatek,mtk_ctd";
+ 		bc12 = <&mt6360_chg>;
+ 		bc12_sel = <0>;
+ 	};
+ 
++	extcon_usb1: extcon-usb1 {
++		compatible = "linux,extcon-usb-gpio";
++		pinctrl-names = "default";
++		pinctrl-0 = <&usb1_iddig>;
++		id-gpio = <&pio 130 GPIO_ACTIVE_HIGH>;
++	};
++
+ 	opp_table_apu_conn: opp-table-apu-conn {
+ 		compatible = "operating-points-v2";
+ 
+@@ -275,6 +212,7 @@ tboard_thermistor1: tboard_thermistor1 {
+ 						115000 15
+ 						120000 13
+ 						125000 12>;
++		status = "disabled";
+ 	};
+ 
+ 	tboard_thermistor2: tboard_thermistor2 {
+@@ -309,6 +247,7 @@ tboard_thermistor2: tboard_thermistor2 {
+ 						115000 15
+ 						120000 13
+ 						125000 12>;
++		status = "disabled";
+ 	};
+ 
+ 	tboard_thermistor3: tboard_thermistor3 {
+@@ -343,6 +282,7 @@ tboard_thermistor3: tboard_thermistor3 {
+ 						115000 15
+ 						120000 13
+ 						125000 12>;
++		status = "disabled";
+ 	};
+ 
+ 	usb_p1_vbus: regulator@0 {
+@@ -354,6 +294,15 @@ usb_p1_vbus: regulator@0 {
+ 		regulator-always-on;
+ 	};
+ 
++	usb_p2_vbus: regulator@3 {
++		compatible = "regulator-fixed";
++		regulator-name = "vbus2";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		gpio = <&pio 131 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++	};
++
+ 	usb_p3_vbus: regulator@1 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "vbus3";
+@@ -434,10 +383,6 @@ &audio_asrc {
+ 	status = "okay";
+ };
+ 
+-&auxadc {
+-	status = "okay";
+-};
+-
+ &ddr_emi {
+ 	dvfsrc-helper {
+ 		vcore-supply = <&mt6359p_vgpu11_reg>;
+@@ -519,15 +464,6 @@ eth_phy1: eth_phy2@4 {
+ 	};
+ };
+ 
+-&gpio_key {
+-	volinc_key{
+-		debounce-interval = <100>;
+-		gpios = <&pio 106 1>;
+-		linux,code = <115>;
+-		linux,input-type = <1>;
+-	};
+-};
+-
+ &gpufreq {
+ 	vgpu-supply = <&mt6319_7_vbuck1>;
+ 	vsram_gpu-supply = <&mt6359p_vsram_others_reg>;
+@@ -579,44 +515,168 @@ &i2c2 {
+ 	pinctrl-0 = <&i2c2_pin>;
+ 	clock-frequency = <400000>;
+ 	status = "okay";
+-
+-	nt50358a@3e {
+-		compatible = "nt50358a";
+-		reg = <0x3e>;
+-	};
+-
+-	touchscreen: touchscreen@5d {
+-		compatible = "goodix,gt7375p";
+-		reg = <0x5d>;
+-		pinctrl-names = "default";
+-		pinctrl-0 = <&touch_default>;
+-
+-		interrupt-parent = <&pio>;
+-		interrupts = <132 IRQ_TYPE_EDGE_FALLING>;
+-
+-		post-power-on-delay-ms = <100>;
+-		hid-descr-addr = <0x0001>;
+-		mtk-tpd;
+-	};
+-
+-	it5205fn: it5205fn@48 {
+-		compatible = "mediatek,it5205fn";
+-		reg = <0x48>;
+-		type3v3-supply = <&mt6359p_vibr_reg>;
+-		status = "okay";
+-	};
+ };
+ 
+ &i2c3 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&i2c3_pin>;
+-	status = "disabled";
++	status = "okay";
++       /* SX1509(2) U1001 on IPI-SMARC-PLUS */
++        gpio2:gpio_exp2@3e {
++                        /* GPIO Expander 0 Mapping :
++                         * - 0: E_GPIO1_0		<=>
++                         * - 1: E_GPIO1_1		<=>
++                         * - 2: E_GPIO1_2		<=>
++                         * - 3: E_GPIO1_3		<=>
++                         * - 4: E_GPIO1_4		<=>
++                         * - 5: E_GPIO1_5		<=>
++                         * - 6: E_GPIO1_6		<=>
++                         * - 7: E_GPIO1_7		<=>
++                         * - 8: E_GPIO1_8		<=>
++                         */
++                        #gpio-cells = <2>;
++                        #interrupt-cells = <2>;
++                        compatible = "semtech,sx1509q";
++                        reg = <0x3e>;
++                        semtech,probe-reset;
++                        gpio-controller;
++        };
+ };
+ 
+ &i2c4 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&i2c4_pin>;
+-	status = "disabled";
++	status = "okay";
++
++	/* SX1509(0) U4006 */
++	gpio0: gpio_exp0@3e {
++			/* GPIO Expander 0 Mapping :
++			 * - 0: LS_OE_CTL			 =>			Level Shifter oe pin(out high)
++			 * - 1: CN_GPIO7			<=>			SMARC GPIO7
++			 * - 2: CN_GPIO8			<=>			SMARC GPIO8
++			 * - 3: CN_GPIO9			<=>			SMARC GPIO9
++			 * - 4: CN_GPIO10			<=>			SMARC GPIO10
++			 * - 5: TPM_RST_N			 =>			TPM RST(out low / pull-high)
++			 * - 6: TPM_PP				 =>			TPM PP (out high)
++			 * - 7: TPM_LP				 =>			TPM LP (out high)
++			 * - 8: SLEEP#				<=			SMARC SLEEP# (won't use)
++			 * - 9: CHARGING#			<=			SMARC CHARGING# (won't use)
++			 * - 10: BATLOW#			<=			SMARC BATLOW# (won't use)
++			 * - 11: TEST#				<=			SMARC TEST# (won't use)
++			 * - 12: LID#				<=			SMARC LID# (won't use)
++			 * - 13: CN_GPIO11			<=>			SMARC GPIO11
++			 * - 14: CN_GPIO12			<=>			SMARC GPIO12
++			 * - 15: CN_GPIO13			<=>         SMARC GPIO13
++			 */
++			#gpio-cells = <2>;
++			#interrupt-cells = <2>;
++			compatible = "semtech,sx1509q";
++			reg = <0x3e>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&gpio_exp0_pins &ls_oe_ctl &tpm_pp &tpm_lp>;
++			semtech,probe-reset;
++			gpio-controller;
++			interrupt-controller;
++
++			interrupt-parent = <&pio>;
++			interrupts = <55 IRQ_TYPE_EDGE_FALLING>;
++                        ls_oe_ctl: gpio0-cfg {
++                                pins = "gpio0";
++                                output-high;
++                        };
++                        tpm_pp: gpio6-cfg {
++                                pins = "gpio6";
++                                output-high;
++                        };
++                        tpm_lp: gpio7-cfg {
++                                pins = "gpio7";
++                                output-high;
++                        };
++
++	};
++
++
++	/* SX1509(1) U4007 */
++	gpio1: gpio_exp1@3f {
++                        /* GPIO Expander 0 Mapping :
++                         * - 0: PRI_DISP_P0_3V3_SEL     =>      (out low)->DSI0 , (out high)->eDP0
++                         * - 1: USB0_EN_OC#             <=      (input,NP)
++                         * - 2: USB1_EN_OC#             <=      (input,NP)
++                         * - 3: USB_HUB_3V3_RST_N       =>      (out high)
++                         * - 4: USB_ETH1_3V3_RST_N      =>      (out high)
++                         * - 5: WIFI_PowerDown#         =>      (out high)
++                         * - 6: CAM2_PWR_EN             =>      (out high)
++                         * - 7: CAM2_LED_EN             =>      (out high)
++                         * - 8: PCIe_3V3_SEL		=>	(out high)->PCIe A/B for Gen 3 (out low)->PCIe A for Gen3 , PCIe B for Gen2
++                         * - 9:
++                         * - 10:
++                         * - 11: BT_UART_RST_N          =>      (out high)
++                         * - 12: USB_UART_RST_N         =>      (out high)
++                         * - 13:
++                         * - 14:
++                         * - 15:
++                         */
++                        #gpio-cells = <2>;
++                        #interrupt-cells = <2>;
++                        compatible = "semtech,sx1509q";
++                        reg = <0x3f>;
++                        pinctrl-names = "default";
++                        pinctrl-0 = <&gpio_exp1_pins &pri_disp_p0_3v3_sel1 &usb0_en_oc &usb1_en_oc &usb_hub_3v3_rst_n &usb_eth1_3v3_rst_n &wifi_powerdown &cam2_pwr_en &cam2_led_en &pcie_3v3_sel &bt_uart_rst_n &usb_uart_rst_n>;
++                        semtech,probe-reset;
++                        gpio-controller;
++                        interrupt-controller;
++
++                        interrupt-parent = <&pio>;
++                        interrupts = <56 IRQ_TYPE_EDGE_FALLING>;
++                        pri_disp_p0_3v3_sel1: gpio01-cfg {
++                                pins = "gpio0";
++                                output-low;
++                        };
++                        pri_disp_p0_3v3_sel2: gpio02-cfg {
++                                pins = "gpio0";
++                                output-high;
++                        };
++                        usb0_en_oc: gpio1-cfg {
++                                pins = "gpio1";
++                                bias-pull-up;
++                        };
++                        usb1_en_oc: gpio2-cfg {
++                                pins = "gpio2";
++                                bias-pull-up;
++                        };
++                        usb_hub_3v3_rst_n: gpio3-cfg {
++                                pins = "gpio3";
++                                output-high;
++                        };
++                        usb_eth1_3v3_rst_n: gpio4-cfg {
++                                pins = "gpio4";
++                                output-high;
++                        };
++                        wifi_powerdown: gpio5-cfg {
++                                pins = "gpio5";
++                                output-low;
++                        };
++                        cam2_pwr_en: gpio6-cfg {
++                                pins = "gpio6";
++                                output-high;
++                        };
++                        cam2_led_en: gpio7-cfg {
++                                pins = "gpio7";
++                                output-high;
++                        };
++                        pcie_3v3_sel: gpio8-cfg {
++                                pins = "gpio8";
++                                output-high;
++                        };
++                        bt_uart_rst_n: gpio11-cfg {
++                                pins = "gpio11";
++                                output-high;
++                        };
++                        usb_uart_rst_n: gpio12-cfg {
++                                pins = "gpio12";
++                                output-high;
++                        };
++	};
+ };
+ 
+ &i2c5 {
+@@ -960,6 +1020,10 @@ &mt6359p_vbbck_reg {
+ 	regulator-always-on;
+ };
+ 
++&mt6359p_vibr_reg {
++	regulator-always-on;
++};
++
+ &mt6359p_vcore_reg {
+ 	regulator-always-on;
+ };
+@@ -968,18 +1032,50 @@ &mt6359p_vgpu11_reg {
+ 	regulator-always-on;
+ };
+ 
++&mt6359p_vsram_others_reg {
++	regulator-always-on;
++};
++
+ &mt6359p_vpu_reg {
+ 	regulator-always-on;
+ };
+ 
++&mt6359p_vproc1_reg {
++	regulator-always-on;
++};
++
++&mt6359p_vproc2_reg {
++	regulator-always-on;
++};
++
++&mt6359p_vsram_md_reg {
++	regulator-always-on;
++};
++
++&mt6359p_vaud18_reg {
++	regulator-always-on;
++};
++
++&mt6359p_vio18_reg {
++	regulator-always-on;
++};
++
+ &mt6359p_vrf12_reg {
+ 	regulator-always-on;
+ };
+ 
++&mt6359p_vrf18_reg {
++	regulator-always-on;
++};
++
+ &mt6359p_vufs_reg {
+ 	regulator-always-on;
+ };
+ 
++&mt6359p_vcn33_2_bt_reg {
++	regulator-always-on;
++};
++
+ &mt6359pregulator {
+ 	mt6359p_vgpu11_sshub_reg: buck_vgpu11_sshub {
+ 		regulator-name = "vgpu11_sshub";
+@@ -1014,32 +1110,19 @@ &pcie1 {
+ &pio {
+ 	pinctrl-names = "default";
+ 
++	usb_p0_p2_mux_sel {
++		gpio-hog;
++		gpios = <3 GPIO_ACTIVE_HIGH>;
++                output-high;  //USB P2 <--> SMARC OTG
++		line-name = "USB_P0_P2_MUX_SEL";
++	};
++	
+ 	aud_pins_default: audiodefault {
+ 		pins_cmd_dat {
+-		pinmux = <PINMUX_GPIO69__FUNC_AUD_CLK_MOSI>,
+-			 <PINMUX_GPIO70__FUNC_AUD_SYNC_MOSI>,
+-			 <PINMUX_GPIO71__FUNC_AUD_DAT_MOSI0>,
+-			 <PINMUX_GPIO72__FUNC_AUD_DAT_MOSI1>,
+-			 <PINMUX_GPIO73__FUNC_AUD_DAT_MISO0>,
+-			 <PINMUX_GPIO74__FUNC_AUD_DAT_MISO1>,
+-			 <PINMUX_GPIO75__FUNC_AUD_DAT_MISO2>,
+-			 <PINMUX_GPIO61__FUNC_DMIC1_CLK>,
+-			 <PINMUX_GPIO62__FUNC_DMIC1_DAT>,
+-			 <PINMUX_GPIO64__FUNC_DMIC2_DAT>,
+-			 <PINMUX_GPIO14__FUNC_DMIC3_DAT>,
+-			 <PINMUX_GPIO15__FUNC_DMIC3_CLK>,
+-			 <PINMUX_GPIO16__FUNC_DMIC4_DAT>,
+-			 <PINMUX_GPIO17__FUNC_DMIC4_CLK>,
+-			 <PINMUX_GPIO46__FUNC_I2SIN_MCK>,
+-			 <PINMUX_GPIO47__FUNC_I2SIN_BCK>,
+-			 <PINMUX_GPIO48__FUNC_I2SIN_WS>,
+-			 <PINMUX_GPIO49__FUNC_I2SIN_D0>,
++		pinmux = <PINMUX_GPIO49__FUNC_I2SIN_D0>,
+ 			 <PINMUX_GPIO50__FUNC_I2SO1_MCK>,
+ 			 <PINMUX_GPIO51__FUNC_I2SO1_BCK>,
+ 			 <PINMUX_GPIO52__FUNC_I2SO1_WS>,
+-			 <PINMUX_GPIO53__FUNC_I2SO1_D0>,
+-			 <PINMUX_GPIO54__FUNC_I2SO1_D1>,
+-			 <PINMUX_GPIO55__FUNC_I2SO1_D2>,
+ 			 <PINMUX_GPIO56__FUNC_I2SO1_D3>;
+ 		};
+ 	};
+@@ -1357,6 +1440,18 @@ pins_cmd_dat {
+ 		};
+ 	};
+ 
++	gpio_exp0_pins: gpio-exp0-pins {
++		pins {
++		    pinmux = <PINMUX_GPIO55__FUNC_GPIO55>;
++		};
++	};
++
++	gpio_exp1_pins: gpio-exp1-pins {
++		pins {
++		    pinmux = <PINMUX_GPIO56__FUNC_GPIO56>;
++		};
++	};
++	
+ 	pwm0_gpio_def_cfg: pwm0default {
+ 		pins_cmd_dat {
+ 			pinmux = <PINMUX_GPIO97__FUNC_DISP_PWM0>;
+@@ -1390,6 +1485,15 @@ pins_cmd_dat {
+ 			input-enable;
+ 		};
+ 	};
++
++
++	usb1_iddig: usb1-iddig-default {
++		pins-cmd-dat {
++			pinmux = <PINMUX_GPIO130__FUNC_GPIO130>;
++			input-enable;
++			bias-pull-up;
++		};
++	};
+ };
+ 
+ &pmic {
+@@ -1422,24 +1526,18 @@ &ssusb {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&u3_p0_vbus>;
+ 	vusb33-supply = <&mt6359p_vusb_reg>;
+-	dr_mode = "otg"; /* 1: host, 2: peripheral, 3 dual-mode */
+-	mediatek,usb3-drd;
+-	usb-role-switch;
++	dr_mode = "device"; /* 1: host, 2: device, 3 dual-mode */
+ 	mediatek,clk-mgr;
+ 	wakeup-source;
+ 	status = "okay";
+-	port {
+-		mtu3_drd_switch: endpoint@0 {
+-			remote-endpoint = <&usb_role>;
+-		};
+-	};
+ };
+ 
+-&ssusb2 {
++&ssusb1 {
+ 	vusb33-supply = <&mt6359p_vusb_reg>;
+-	maximum-speed = "high-speed";
+-	dr_mode = "host";
+-	vbus-supply = <&usb_p3_vbus>;
++	dr_mode = "otg";
++	mediatek,force-vbus;
++	extcon = <&extcon_usb1>;
++	vbus-supply = <&usb_p2_vbus>;
+ 	wakeup-source;
+ 	status = "okay";
+ };
+@@ -1530,6 +1628,10 @@ &u2port1 {
+ 	status = "okay";
+ };
+ 
++&u2port2 {
++	status = "okay";
++};
++
+ &u2port3 {
+ 	status = "okay";
+ };
+@@ -1542,6 +1644,10 @@ &u3phy1 {
+ 	status="okay";
+ };
+ 
++&u3phy2 {
++	status = "okay";
++};
++
+ &u3phy3 {
+ 	status="okay";
+ };
+@@ -1554,6 +1660,12 @@ &u3port1 {
+ 	status = "okay";
+ };
+ 
++&ufshci {
++       vcc-supply = <&mt6359p_vemc_reg>;
++       vccq2-supply = <&mt6359p_vufs_reg>;
++       status = "okay";
++};
++
+ &usb30 {
+ 	phys = <&u2port1 PHY_TYPE_USB2>;
+ 	vusb33-supply = <&mt6359p_vusb_reg>;
+diff --git a/arch/arm64/boot/dts/mediatek/aiot8395p6_64_bsp.dts b/arch/arm64/boot/dts/mediatek/aiot8395p6_64_bsp.dts
+index cbf5ffc21..d56218b6a 100644
+--- a/arch/arm64/boot/dts/mediatek/aiot8395p6_64_bsp.dts
++++ b/arch/arm64/boot/dts/mediatek/aiot8395p6_64_bsp.dts
+@@ -289,6 +289,7 @@ tboard_thermistor1: tboard_thermistor1 {
+ 						115000 15
+ 						120000 13
+ 						125000 12>;
++		status = "disabled";
+ 	};
+ 
+ 	tboard_thermistor2: tboard_thermistor2 {
+@@ -323,6 +324,7 @@ tboard_thermistor2: tboard_thermistor2 {
+ 						115000 15
+ 						120000 13
+ 						125000 12>;
++		status = "disabled";
+ 	};
+ 
+ 	tboard_thermistor3: tboard_thermistor3 {
+@@ -357,6 +359,7 @@ tboard_thermistor3: tboard_thermistor3 {
+ 						115000 15
+ 						120000 13
+ 						125000 12>;
++		status = "disabled";
+ 	};
+ 
+ 	usb_p1_vbus: regulator@0 {
+@@ -1777,6 +1780,12 @@ &u3port1 {
+ 	status = "okay";
+ };
+ 
++&ufshci {
++	vcc-supply = <&mt6359p_vemc_reg>;
++	vccq2-supply = <&mt6359p_vufs_reg>;
++	status = "okay";
++};
++
+ &usb30 {
+ 	phys = <&u2port1 PHY_TYPE_USB2>,
+ 	       <&u3port1 PHY_TYPE_USB3>;
+diff --git a/arch/arm64/boot/dts/mediatek/mt8195.dts b/arch/arm64/boot/dts/mediatek/mt8195.dts
+index 2576f9234..882d656a4 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8195.dts
++++ b/arch/arm64/boot/dts/mediatek/mt8195.dts
+@@ -308,6 +308,7 @@ hdmi_ddc {
+ 					 <PINMUX_GPIO35__FUNC_HDMITX20_SDA>;
+ 				mediatek,drive-strength-adv = <0>;
+ 				drive-strength = <MTK_DRIVE_10mA>;
++				bias-disable; //disabled default Pull Down setting for HDMI
+ 			};
+ 			hdmi_cec {
+ 				pinmux = <PINMUX_GPIO33__FUNC_HDMITX20_CEC>;
+diff --git a/arch/arm64/configs/aiot8395p1_64_bsp_debug_defconfig b/arch/arm64/configs/aiot8395p1_64_bsp_debug_defconfig
+index 8547de8eb..1f6a5d60f 100644
+--- a/arch/arm64/configs/aiot8395p1_64_bsp_debug_defconfig
++++ b/arch/arm64/configs/aiot8395p1_64_bsp_debug_defconfig
+@@ -94,6 +94,9 @@ CONFIG_TOUCHSCREEN_MT6983_ALPHA_SUPPORT=m
+ CONFIG_TOUCHSCREEN_MT6895_ALPHA_SUPPORT=m
+ CONFIG_SERIAL_8250_MT6577=m
+ CONFIG_I2C_MT65XX=m
++CONFIG_I2C_CHARDEV=m
++#CONFIG_PINCTRL=m
++CONFIG_PINCTRL_SX150X=y
+ CONFIG_SPI_MT65XX=m
+ CONFIG_SPMI_MTK_PMIF=m
+ # CONFIG_PINCTRL_MT2712 is not set
+@@ -186,7 +189,7 @@ CONFIG_DRM_MEDIATEK_PANEL=m
+ CONFIG_DRM_MEDIATEK=m
+ CONFIG_DRM_MEDIATEK_V2=y
+ CONFIG_DRM_MEDIATEK_HDMI=m
+-CONFIG_DRM_MEDIATEK_HDMI_HDCP=y
++# CONFIG_DRM_MEDIATEK_HDMI_HDCP is not set
+ CONFIG_MTK_GATE_IC=y
+ CONFIG_RT4831A_I2C=m
+ CONFIG_MTK_GPU_SUPPORT=m
+@@ -204,6 +207,7 @@ CONFIG_SND_SOC_MT8195=m
+ CONFIG_SND_SOC_MT8195_ADSP=m
+ CONFIG_SND_SOC_MT8195_P1V1=m
+ CONFIG_USB_MTU3=m
++CONFIG_EXTCON_USB_GPIO=m
+ CONFIG_MTK_USB_BOOST=m
+ CONFIG_USB_CONFIGFS_F_UAC1=m
+ CONFIG_MTK_USB_CONFIGFS_RNDIS=m
+@@ -431,10 +435,10 @@ CONFIG_MMC_MTK=m
+ CONFIG_MMC_MTK_PRO=m
+ CONFIG_MMC_CQHCI=m
+ CONFIG_MMC_AUTOK=m
+-CONFIG_MMC_DEBUG=m
+ CONFIG_MTK_FPSGO_V3=m
+ CONFIG_MTK_PERFORMANCE_MODULE=m
+ CONFIG_MTK_FRS=m
++CONFIG_MTK_BLOCK_IO_TRACER=m
+ CONFIG_MTK_PWM=m
+ CONFIG_MTK_IRTX_PWM_SUPPORT=m
+ CONFIG_MTK_PID_MAP=m
+@@ -513,3 +517,4 @@ CONFIG_I2C_HID_ACPI=m
+ CONFIG_I2C_HID_OF=m
+ CONFIG_I2C_HID_OF_GOODIX=m
+ CONFIG_VIDEO_MTK_AIE=m
++# CONFIG_LOCALVERSION_AUTO is not set
+diff --git a/arch/arm64/configs/aiot8395p1_64_bsp_defconfig b/arch/arm64/configs/aiot8395p1_64_bsp_defconfig
+index 8547de8eb..1f6a5d60f 100644
+--- a/arch/arm64/configs/aiot8395p1_64_bsp_defconfig
++++ b/arch/arm64/configs/aiot8395p1_64_bsp_defconfig
+@@ -94,6 +94,9 @@ CONFIG_TOUCHSCREEN_MT6983_ALPHA_SUPPORT=m
+ CONFIG_TOUCHSCREEN_MT6895_ALPHA_SUPPORT=m
+ CONFIG_SERIAL_8250_MT6577=m
+ CONFIG_I2C_MT65XX=m
++CONFIG_I2C_CHARDEV=m
++#CONFIG_PINCTRL=m
++CONFIG_PINCTRL_SX150X=y
+ CONFIG_SPI_MT65XX=m
+ CONFIG_SPMI_MTK_PMIF=m
+ # CONFIG_PINCTRL_MT2712 is not set
+@@ -186,7 +189,7 @@ CONFIG_DRM_MEDIATEK_PANEL=m
+ CONFIG_DRM_MEDIATEK=m
+ CONFIG_DRM_MEDIATEK_V2=y
+ CONFIG_DRM_MEDIATEK_HDMI=m
+-CONFIG_DRM_MEDIATEK_HDMI_HDCP=y
++# CONFIG_DRM_MEDIATEK_HDMI_HDCP is not set
+ CONFIG_MTK_GATE_IC=y
+ CONFIG_RT4831A_I2C=m
+ CONFIG_MTK_GPU_SUPPORT=m
+@@ -204,6 +207,7 @@ CONFIG_SND_SOC_MT8195=m
+ CONFIG_SND_SOC_MT8195_ADSP=m
+ CONFIG_SND_SOC_MT8195_P1V1=m
+ CONFIG_USB_MTU3=m
++CONFIG_EXTCON_USB_GPIO=m
+ CONFIG_MTK_USB_BOOST=m
+ CONFIG_USB_CONFIGFS_F_UAC1=m
+ CONFIG_MTK_USB_CONFIGFS_RNDIS=m
+@@ -431,10 +435,10 @@ CONFIG_MMC_MTK=m
+ CONFIG_MMC_MTK_PRO=m
+ CONFIG_MMC_CQHCI=m
+ CONFIG_MMC_AUTOK=m
+-CONFIG_MMC_DEBUG=m
+ CONFIG_MTK_FPSGO_V3=m
+ CONFIG_MTK_PERFORMANCE_MODULE=m
+ CONFIG_MTK_FRS=m
++CONFIG_MTK_BLOCK_IO_TRACER=m
+ CONFIG_MTK_PWM=m
+ CONFIG_MTK_IRTX_PWM_SUPPORT=m
+ CONFIG_MTK_PID_MAP=m
+@@ -513,3 +517,4 @@ CONFIG_I2C_HID_ACPI=m
+ CONFIG_I2C_HID_OF=m
+ CONFIG_I2C_HID_OF_GOODIX=m
+ CONFIG_VIDEO_MTK_AIE=m
++# CONFIG_LOCALVERSION_AUTO is not set
+diff --git a/arch/arm64/configs/aiot8395p6_64_bsp_defconfig b/arch/arm64/configs/aiot8395p6_64_bsp_defconfig
+index c48f9503e..994e604c6 100644
+--- a/arch/arm64/configs/aiot8395p6_64_bsp_defconfig
++++ b/arch/arm64/configs/aiot8395p6_64_bsp_defconfig
+@@ -70,6 +70,7 @@ CONFIG_TCPC_MT6360=m
+ CONFIG_EXTCON_MTK_USB=m
+ CONFIG_SCSI_UFS_MEDIATEK=m
+ CONFIG_SCSI_UFS_MEDIATEK_DBG=m
++CONFIG_MTK_BLOCK_IO_TRACER=m
+ CONFIG_STMMAC_ETH=m
+ CONFIG_DWMAC_MEDIATEK=m
+ CONFIG_REALTEK_PHY=m
+@@ -193,7 +194,7 @@ CONFIG_DRM_MEDIATEK_PANEL=m
+ CONFIG_DRM_MEDIATEK=m
+ CONFIG_DRM_MEDIATEK_V2=y
+ CONFIG_DRM_MEDIATEK_HDMI=m
+-CONFIG_DRM_MEDIATEK_HDMI_HDCP=y
++# CONFIG_DRM_MEDIATEK_HDMI_HDCP is not set
+ CONFIG_MTK_GATE_IC=y
+ CONFIG_RT4831A_I2C=m
+ CONFIG_MTK_GPU_SUPPORT=m
+@@ -522,3 +523,4 @@ CONFIG_I2C_HID_OF=m
+ CONFIG_I2C_HID_OF_GOODIX=m
+ CONFIG_VIDEO_MTK_AIE=m
+ CONFIG_I2C_CHARDEV=m
++CONFIG_LOCALVERSION_AUTO is not set
+diff --git a/drivers/gpu/drm/panel/panel-boe-tv101wum-nl6.c b/drivers/gpu/drm/panel/panel-boe-tv101wum-nl6.c
+index 9dcf8c38f..eb7930813 100644
+--- a/drivers/gpu/drm/panel/panel-boe-tv101wum-nl6.c
++++ b/drivers/gpu/drm/panel/panel-boe-tv101wum-nl6.c
+@@ -460,7 +460,7 @@ static int boe_panel_unprepare_power(struct drm_panel *panel)
+ 
+ 	if (boe->desc->discharge_on_disable) {
+ 		/* Enable AVDD & AVEE discharge when power off */
+-		NT50358A_REG_WRITE(0x03, 0x33);
++//		NT50358A_REG_WRITE(0x03, 0x33);
+ 		if (boe->avee)
+ 			gpiod_set_value(boe->avee, 0);
+ 		if (boe->avdd)
+@@ -474,7 +474,7 @@ static int boe_panel_unprepare_power(struct drm_panel *panel)
+ 		gpiod_set_value(boe->enable_gpio, 0);
+ 		usleep_range(500, 1000);
+ 		/* Enable AVDD & AVEE discharge when power off */
+-		NT50358A_REG_WRITE(0x03, 0x33);
++//		NT50358A_REG_WRITE(0x03, 0x33);
+ 		if (boe->avee)
+ 			gpiod_set_value(boe->avee, 0);
+ 		if (boe->avdd)
+@@ -537,11 +537,11 @@ static int boe_panel_prepare_power(struct drm_panel *panel)
+ 		gpiod_set_value(boe->avee, 1);
+ 	usleep_range(6000, 7000);
+ 	/* Set AVDD = 5.8V */
+-	NT50358A_REG_WRITE(0x00, 0x12);
++//	NT50358A_REG_WRITE(0x00, 0x12);
+ 	/* Set AVEE = -5.8V */
+-	NT50358A_REG_WRITE(0x01, 0x12);
++//	NT50358A_REG_WRITE(0x01, 0x12);
+ 	/* Disable AVDD & AVEE discharge when power on*/
+-	NT50358A_REG_WRITE(0x03, 0x30);
++//	NT50358A_REG_WRITE(0x03, 0x30);
+ 
+ 	if (boe->desc->lp11_before_reset) {
+ 		mipi_dsi_dcs_nop(boe->dsi);
+-- 
+2.34.1
+

@@ -1,0 +1,109 @@
+From 8b1b4105363e441b0b2fae8f23bd5c72b2927ff8 Mon Sep 17 00:00:00 2001
+From: shiva-adlink <shivashankar.t@adlinktech.com>
+Date: Wed, 25 Jun 2025 20:48:58 +0530
+Subject: [PATCH 1/2] lec-mtk1200: Device-project-support-aiot8395p1
+
+Signed-off-by: shiva-adlink <shivashankar.t@adlinktech.com>
+---
+ ProjectConfig.mk   |  2 +-
+ ko_order_table.csv | 35 ++++++++++++++++++++++++++++++++---
+ 2 files changed, 33 insertions(+), 4 deletions(-)
+
+diff --git a/ProjectConfig.mk b/ProjectConfig.mk
+index 3390099..fb2bf8b 100644
+--- a/ProjectConfig.mk
++++ b/ProjectConfig.mk
+@@ -359,7 +359,7 @@ MTK_TUNNEL_PLAYBACK_SUPPORT = no
+ MTK_UART_USB_SWITCH = no
+ MTK_UCE_SUPPORT = no
+ MTK_UFS_OTP = no
+-MTK_UFS_SUPPORT = no
++MTK_UFS_SUPPORT = yes
+ MTK_ULTRASND_PROXIMITY = no
+ MTK_ULTRA_DIMMING_SUPPORT = no
+ MTK_ULTRA_RESOLUTION_SUPPORT = yes
+diff --git a/ko_order_table.csv b/ko_order_table.csv
+index 875fdff..2f61060 100644
+--- a/ko_order_table.csv
++++ b/ko_order_table.csv
+@@ -54,12 +54,17 @@ mtk-uart-apdma.ko,/drivers/dma/mediatek/mtk-uart-apdma.ko,ramdisk,Y,Y,user/userd
+ 8250_mtk.ko,/drivers/tty/serial/8250/8250_mtk.ko,ramdisk,Y,Y,user/userdebug/eng
+ charger_class.ko,/drivers/power/supply/charger_class.ko,ramdisk,Y,Y,user/userdebug/eng
+ phy-mtk-ufs.ko,/drivers/phy/mediatek/phy-mtk-ufs.ko,ramdisk,Y,Y,user/userdebug/eng
++ufs-mediatek-mod.ko,/drivers/scsi/ufs/vendor/ufs-mediatek-mod.ko,ramdisk,Y,Y,user/userdebug/eng
++ufs-mediatek-dbg.ko,/drivers/scsi/ufs/ufs-mediatek-dbg.ko,ramdisk,Y,Y,user/userdebug/eng
++blocktag.ko,/drivers/misc/mediatek/blocktag/blocktag.ko,ramdisk,Y,Y,user/userdebug/eng
+ bus-parity.ko,/drivers/misc/mediatek/sda/bus-parity.ko,ramdisk,Y,Y,user/userdebug/eng
+ cache-parity.ko,/drivers/misc/mediatek/sda/cache-parity.ko,ramdisk,Y,Y,user/userdebug/eng
+ mtk-pmic-keys.ko,/drivers/input/keyboard/mtk-pmic-keys.ko,ramdisk,Y,Y,user/userdebug/eng
+ mtk-kpd.ko,/drivers/input/keyboard/mtk-kpd.ko,ramdisk,Y,Y,user/userdebug/eng
+ regulator-vibrator.ko,/drivers/leds/regulator-vibrator.ko,ramdisk,Y,Y,user/userdebug/eng
++i2c-dev.ko,/drivers/i2c/i2c-dev.ko,ramdisk,Y,Y,user/userdebug/eng
+ i2c-mt65xx.ko,/drivers/i2c/busses/i2c-mt65xx.ko,ramdisk,Y,Y,user/userdebug/eng
++rtc-pcf8563.ko,/drivers/rtc/rtc-pcf8563.ko,vendor,Y,N,user/userdebug/eng
+ rtc-mt6397.ko,/drivers/rtc/rtc-mt6397.ko,ramdisk,Y,Y,user/userdebug/eng
+ spi-mt65xx.ko,/drivers/spi/spi-mt65xx.ko,ramdisk,Y,Y,user/userdebug/eng
+ mt6360_pmu_chg.ko,/drivers/power/supply/mt6360_pmu_chg.ko,ramdisk,Y,Y,user/userdebug/eng
+@@ -67,6 +72,7 @@ phy-mtk-tphy.ko,/drivers/phy/mediatek/phy-mtk-tphy.ko,ramdisk,Y,Y,user/userdebug
+ phy-mtk-pcie.ko,/drivers/phy/mediatek/phy-mtk-pcie.ko,ramdisk,Y,Y,user/userdebug/eng
+ xhci-mtk-hcd.ko,/drivers/usb/host/xhci-mtk-hcd.ko,ramdisk,Y,Y,user/userdebug/eng
+ mtu3.ko,/drivers/usb/mtu3/mtu3.ko,ramdisk,Y,Y,user/userdebug/eng
++extcon-usb-gpio.ko,/drivers/extcon/extcon-usb-gpio.ko,ramdisk,Y,Y,user/userdebug/eng
+ usb_f_uac1.ko,/drivers/usb/gadget/function/usb_f_uac1.ko,vendor,Y,Y,user/userdebug/eng
+ mtk_u_ether.ko,/drivers/misc/mediatek/usb/usb_rndis/mtk_u_ether.ko,vendor,Y,N,user/userdebug/eng
+ mtk_usb_f_rndis.ko,/drivers/misc/mediatek/usb/usb_rndis/mtk_usb_f_rndis.ko,vendor,Y,N,user/userdebug/eng
+@@ -158,8 +164,7 @@ pwm-mediatek.ko,/drivers/pwm/pwm-mediatek.ko,vendor,Y,Y,user/userdebug/eng
+ leds-mtk.ko,/drivers/leds/leds-mtk.ko,vendor,Y,Y,user/userdebug/eng
+ backlight_cooling.ko,/drivers/thermal/mediatek/backlight_cooling.ko,vendor,Y,N,user/userdebug/eng
+ mtk_panel_ext.ko,/drivers/gpu/drm/mediatek/mediatek_v2/mtk_panel_ext.ko,ramdisk,Y,Y,user/userdebug/eng
+-nt50358a_i2c.ko,/drivers/gpu/drm/panel/nt50358a_i2c.ko,vendor,Y,Y,user/userdebug/eng
+-panel-boe-tv101wum-nl6.ko,/drivers/gpu/drm/panel/panel-boe-tv101wum-nl6.ko,ramdisk,Y,Y,user/userdebug/eng
++panel-b101uan01.ko,/drivers/gpu/drm/panel/panel-b101uan01.ko,ramdisk,Y,Y,user/userdebug/eng
+ mtk_dramc.ko,/drivers/memory/mediatek/mtk_dramc.ko,vendor,Y,Y,user/userdebug/eng
+ mtk-mmdvfs.ko,/drivers/soc/mediatek/mtk-mmdvfs.ko,ramdisk,Y,Y,user/userdebug/eng
+ mtk-mmdvfs-debug.ko,/drivers/misc/mediatek/mmdvfs/mtk-mmdvfs-debug.ko,ramdisk,Y,Y,user/userdebug/eng
+@@ -195,12 +200,23 @@ audio_ipi_framework.ko,/drivers/misc/mediatek/hifidsp_audio_ipi/common/framework
+ audio_ipi_platform.ko,/drivers/misc/mediatek/hifidsp_audio_ipi/hifi4_v1/audio_ipi_platform.ko,vendor,Y,N,user/userdebug/eng
+ hifi_dsp.ko,/drivers/misc/mediatek/hifi_dsp/hifi_dsp.ko,vendor,Y,N,user/userdebug/eng
+ mtk-afe-external.ko,/sound/soc/mediatek/common/mtk-afe-external.ko,vendor,Y,N,user/userdebug/eng
+-snd-soc-dmic.ko,/sound/soc/codecs/snd-soc-dmic.ko,vendor,Y,N,user/userdebug/eng
+ mt6359p-accdet.ko,/sound/soc/codecs/mt6359p-accdet.ko,vendor,Y,N,user/userdebug/eng
+ snd-soc-mt6359.ko,/sound/soc/codecs/snd-soc-mt6359.ko,vendor,Y,N,user/userdebug/eng
+ snd-soc-mtk-common.ko,/sound/soc/mediatek/common/snd-soc-mtk-common.ko,vendor,Y,N,user/userdebug/eng
+ snd-soc-mt8195-afe.ko,/sound/soc/mediatek/mt8195/snd-soc-mt8195-afe.ko,vendor,Y,N,user/userdebug/eng
+ snd-soc-mt8195-adsp-pcm.ko,/sound/soc/mediatek/mt8195/snd-soc-mt8195-adsp-pcm.ko,vendor,Y,N,user/userdebug/eng
++soundcore.ko,/sound/soundcore.ko,ramdisk,Y,N,user/userdebug/eng
++snd.ko,/sound/core/snd.ko,vendor,Y,N,user/userdebug/eng
++snd-pcm.ko,/sound/core/snd-pcm.ko,vendor,Y,N,user/userdebug/eng
++snd-timer.ko,/sound/core/snd-timer.ko,vendor,Y,N,user/userdebug/eng
++snd-hwdep.ko,/sound/core/snd-hwdep.ko,vendor,Y,N,user/userdebug/eng
++snd-compress.ko,/sound/core/snd-compress.ko,vendor,Y,N,user/userdebug/eng
++snd-hrtimer.ko,/sound/core/snd-hrtimer.ko,vendor,Y,N,user/userdebug/eng
++snd-pcm-dmaengine.ko,/sound/core/snd-pcm-dmaengine.ko,vendor,Y,N,user/userdebug/eng
++snd-rawmidi.ko,/sound/core/snd-rawmidi.ko,vendor,Y,N,user/userdebug/eng
++snd-soc-core.ko,/sound/soc/snd-soc-core.ko,vendor,Y,N,user/userdebug/eng
++snd-soc-tlv320aic3x.ko,/sound/soc/codecs/snd-soc-tlv320aic3x.ko,vendor,Y,N,user/userdebug/eng
++snd-soc-tlv320aic3x-i2c.ko,/sound/soc/codecs/snd-soc-tlv320aic3x-i2c.ko,vendor,Y,N,user/userdebug/eng
+ mt8195-evb.ko,/sound/soc/mediatek/mt8195/mt8195-evb.ko,vendor,Y,N,user/userdebug/eng
+ asrc-common.ko,/drivers/misc/mediatek/asrc/common/asrc-common.ko,vendor,Y,N,user/userdebug/eng
+ mt8195-asrc.ko,/drivers/misc/mediatek/asrc/v1/mt8195-asrc.ko,vendor,Y,N,user/userdebug/eng
+@@ -253,3 +269,16 @@ met_sspm_api.ko,/../vendor/mediatek/kernel_modules/met_drv_v3/met_api/met_sspm_a
+ met_mcupm_api.ko,/../vendor/mediatek/kernel_modules/met_drv_v3/met_api/met_mcupm_api/met_mcupm_api.ko,vendor,N,N,user/userdebug/eng
+ met_scmi_api.ko,/../vendor/mediatek/kernel_modules/met_drv_v3/met_api/met_scmi_api/met_scmi_api.ko,vendor,N,N,user/userdebug/eng
+ met_vcore_api.ko,/../vendor/mediatek/kernel_modules/met_drv_v3/met_api/met_vcore_api/met_vcore_api.ko,vendor,N,N,user/userdebug/eng
++usb-conn-gpio.ko,/drivers/usb/common/usb-conn-gpio.ko,ramdisk,Y,Y,user/userdebug/eng
++lan78xx.ko,/drivers/net/usb/lan78xx.ko,ramdisk,Y,N,user/userdebug/eng
++can.ko,/net/can/can.ko,ramdisk,Y,N,user/userdebug/eng
++can-raw.ko,/net/can/can-raw.ko,ramdisk,Y,N,user/userdebug/eng
++can-isotp.ko,/net/can/can-isotp.ko,ramdisk,Y,N,user/userdebug/eng
++can-dev.ko,/drivers/net/can/dev/can-dev.ko,ramdisk,Y,N,user/userdebug/eng
++mcp251xfd.ko,/drivers/net/can/spi/mcp251xfd/mcp251xfd.ko,ramdisk,Y,N,user/userdebug/eng
++moal.ko,/drivers/net/wireless/marvell/mrvl8997/wlan_src/moal.ko,vendor,Y,N,user/userdebug/eng
++mlan.ko,/drivers/net/wireless/marvell/mrvl8997/wlan_src/mlan.ko,vendor,Y,N,user/userdebug/eng
++imx214.ko,/drivers/media/i2c/imx214.ko,vendor,Y,N,user/userdebug/eng
++tpm.ko,/drivers/char/tpm/tpm.ko,vendor,Y,N,user/userdebug/eng
++tpm_tis_core.ko,/drivers/char/tpm/tpm_tis_core.ko,vendor,Y,N,user/userdebug/eng
++tpm_tis_i2c.ko,/drivers/char/tpm/tpm_tis_i2c.ko,vendor,Y,N,user/userdebug/eng
+-- 
+2.49.0
+

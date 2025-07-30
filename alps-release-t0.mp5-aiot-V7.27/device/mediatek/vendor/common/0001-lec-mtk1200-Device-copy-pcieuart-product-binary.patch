@@ -1,0 +1,27 @@
+From 7be6fb98ba8d834b41173dfb57988fa63b12db7b Mon Sep 17 00:00:00 2001
+From: shiva-adlink <shivashankar.t@adlinktech.com>
+Date: Wed, 25 Jun 2025 20:53:01 +0530
+Subject: [PATCH] lec-mtk1200: Device-copy-pcieuart-product-binary
+
+Signed-off-by: shiva-adlink <shivashankar.t@adlinktech.com>
+---
+ connectivity/product_package/wlan_product_package.mk | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/connectivity/product_package/wlan_product_package.mk b/connectivity/product_package/wlan_product_package.mk
+index 92d29a1..0f55416 100644
+--- a/connectivity/product_package/wlan_product_package.mk
++++ b/connectivity/product_package/wlan_product_package.mk
+@@ -184,6 +184,9 @@ endif
+ 
+ ifneq ($(strip $(MY_SRC_FILE)),)
+     PRODUCT_COPY_FILES += $(wlan_patch_folder)/$(MY_SRC_FILE):$(TARGET_COPY_OUT_VENDOR)/firmware/$(MY_SRC_FILE)
++    PRODUCT_COPY_FILES += $(wlan_patch_folder)/android_wifi_mod_para.conf:$(TARGET_COPY_OUT_VENDOR)/firmware/android_wifi_mod_para.conf
++    PRODUCT_COPY_FILES += $(wlan_patch_folder)/wifi_mod_para.conf:$(TARGET_COPY_OUT_VENDOR)/firmware/wifi_mod_para.conf
++    PRODUCT_COPY_FILES += $(wlan_patch_folder)/pcieuart8997_combo_v4.bin:$(TARGET_COPY_OUT_VENDOR)/firmware/pcieuart8997_combo_v4.bin
+ else
+     $(error no firmware for project=$(MTK_TARGET_PROJECT) $(VEXT_TARGET_PROJECT), combo_chip=$(MTK_COMBO_CHIP), WLAN_CHIP_ID=$(WLAN_CHIP_ID))
+ endif
+-- 
+2.34.1
+
